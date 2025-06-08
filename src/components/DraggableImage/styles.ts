@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
   deleteButton: {
     position: 'absolute',
     top: -DIMENSIONS.SPACING_SM,
-    right: -DIMENSIONS.SPACING_SM,
+    left: -DIMENSIONS.SPACING_SM,
     width: DIMENSIONS.ICON_SIZE_MD,
     height: DIMENSIONS.ICON_SIZE_MD,
     backgroundColor: COLORS.ERROR,
@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
   settingsButton: {
     position: 'absolute',
     top: -DIMENSIONS.SPACING_SM,
-    left: -DIMENSIONS.SPACING_SM,
+    right: -DIMENSIONS.SPACING_SM,
     width: DIMENSIONS.ICON_SIZE_MD,
     height: DIMENSIONS.ICON_SIZE_MD,
     backgroundColor: COLORS.SECONDARY,
