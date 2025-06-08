@@ -12,7 +12,6 @@ import {
   PanGestureHandler,
   TapGestureHandler,
   State,
-  HandlerStateChangeEvent,
   PinchGestureHandlerGestureEvent,
   PanGestureHandlerGestureEvent,
   TapGestureHandlerStateChangeEvent,
@@ -30,7 +29,6 @@ import {
   Position,
   Size,
   CanvasState,
-  Transform,
 } from '../../types';
 import { generateId } from '../../utils/helpers';
 import { DIMENSIONS } from '../../constants/dimensions';
@@ -59,7 +57,10 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     // Initialize canvas with square dimensions when no template is selected
     const getInitialCanvasSize = () => {
       const screenWidth = Dimensions.get('window').width - DIMENSIONS.SPACING_LG * 2;
-      const squareSize = Math.min(screenWidth - DIMENSIONS.SPACING_MD * DIMENSIONS.SPACING_MD, 300);
+      const squareSize = Math.min(
+        screenWidth - DIMENSIONS.SPACING_MD * DIMENSIONS.SPACING_MD,
+        DIMENSIONS.ANIMATION_DURATION_300,
+      );
       return { width: squareSize, height: squareSize };
     };
 
@@ -96,7 +97,10 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     // Update canvas state from shared values
     const updateCanvasState = useCallback(
       (newScale: number, newTranslateX: number, newTranslateY: number) => {
-        const clampedScale = Math.max(0.5, Math.min(3, newScale));
+        const clampedScale = Math.max(
+          DIMENSIONS.CANVAS_MIN_SCALE,
+          Math.min(DIMENSIONS.CANVAS_MAX_SCALE, newScale),
+        );
         const maxTranslate = 200;
         const clampedX = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateX));
         const clampedY = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
@@ -122,10 +126,13 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         }
         if (event.nativeEvent.state === State.ACTIVE) {
           const newScale = baseScale.value * event.nativeEvent.scale;
-          scale.value = Math.max(0.5, Math.min(3, newScale));
+          scale.value = Math.max(
+            DIMENSIONS.CANVAS_MIN_SCALE,
+            Math.min(DIMENSIONS.CANVAS_MAX_SCALE, newScale),
+          );
         }
       },
-      [canvasState.selectedElementId],
+      [canvasState.selectedElementId, baseScale.value, scale],
     );
 
     const onPinchHandlerStateChange = useCallback(
@@ -141,7 +148,14 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
-      [updateCanvasState, canvasState.selectedElementId],
+      [
+        updateCanvasState,
+        canvasState.selectedElementId,
+        baseScale,
+        scale.value,
+        translateX.value,
+        translateY.value,
+      ],
     );
 
     // Pan gesture handler
@@ -157,11 +171,23 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           const newTranslateY = baseTranslateY.value + event.nativeEvent.translationY;
 
           const maxTranslate = 200;
-          translateX.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateX));
-          translateY.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
+          translateX.value = Math.max(
+            -maxTranslate,
+            Math.min(maxTranslate, newTranslateX),
+          );
+          translateY.value = Math.max(
+            -maxTranslate,
+            Math.min(maxTranslate, newTranslateY),
+          );
         }
       },
-      [canvasState.selectedElementId],
+      [
+        canvasState.selectedElementId,
+        baseTranslateX.value,
+        baseTranslateY.value,
+        translateX,
+        translateY,
+      ],
     );
 
     const onPanHandlerStateChange = useCallback(
@@ -176,10 +202,22 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         } else if (event.nativeEvent.state === State.END) {
           baseTranslateX.value = translateX.value;
           baseTranslateY.value = translateY.value;
-          runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
+          runOnJS(updateCanvasState)(
+            scale.value,
+            translateX.value,
+            translateY.value,
+          );
         }
       },
-      [updateCanvasState, canvasState.selectedElementId],
+      [
+        updateCanvasState,
+        canvasState.selectedElementId,
+        baseTranslateX,
+        baseTranslateY,
+        scale.value,
+        translateX.value,
+        translateY.value,
+      ],
     );
 
     // Single tap handler
@@ -208,7 +246,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(1, 0, 0);
         }
       },
-      [updateCanvasState],
+      [updateCanvasState, baseScale, baseTranslateX, baseTranslateY, scale, translateX, translateY],
     );
 
     // Animated style for canvas container
@@ -240,8 +278,8 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         type: 'text',
         text: 'Your text here',
         position: {
-          x: canvasState.canvasSize.width / 2 - 75,
-          y: canvasState.canvasSize.height / 2 - 15,
+          x: canvasState.canvasSize.width / 2 - DIMENSIONS.SPACING_75,
+          y: canvasState.canvasSize.height / 2 - DIMENSIONS.SPACING_15,
         },
         size: { width: 150, height: 30 },
         rotation: 0,
@@ -272,7 +310,8 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           imageUri,
           (originalWidth, originalHeight) => {
             const maxImageSize =
-              Math.min(canvasState.canvasSize.width, canvasState.canvasSize.height) * 0.8;
+              Math.min(canvasState.canvasSize.width, canvasState.canvasSize.height) *
+              DIMENSIONS.CANVAS_MEDIUM_SCALE;
             const aspectRatio = originalWidth / originalHeight;
 
             let imageWidth, imageHeight;
@@ -386,8 +425,8 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           ...elementToDuplicate,
           id: generateId(),
           position: {
-            x: elementToDuplicate.position.x + 20,
-            y: elementToDuplicate.position.y + 20,
+            x: elementToDuplicate.position.x + DIMENSIONS.SPACING_20,
+            y: elementToDuplicate.position.y + DIMENSIONS.SPACING_20,
           },
           zIndex: canvasState.elements.length + 1,
         };
@@ -491,8 +530,9 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
             resizeMode="cover"
             onLoad={event => {
               const { width, height } = event.nativeEvent.source;
-              const screenWidth = Dimensions.get('window').width - 32 - 16;
-              const maxHeight = Dimensions.get('window').height * 0.6;
+              const screenWidth =
+                Dimensions.get('window').width - DIMENSIONS.SPACING_XXL - DIMENSIONS.SPACING_LG;
+              const maxHeight = Dimensions.get('window').height * DIMENSIONS.CANVAS_LOW_SCALE;
 
               const aspectRatio = width / height;
               let canvasWidth: number, canvasHeight: number;
@@ -546,26 +586,29 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     onResizeHeight={(id: string, height: number) => {
                       setCanvasState(prev => ({
                         ...prev,
-                        elements: prev.elements.map(element =>
-                          element.id === id && element.type === 'text'
+                        elements: prev.elements.map(el =>
+                          el.id === id && el.type === 'text'
                             ? {
-                                ...element,
-                                size: { ...element.size, height: Math.max(20, height) },
+                                ...el,
+                                size: {
+                                  ...el.size,
+                                  height: Math.max(DIMENSIONS.SPACING_20, height),
+                                },
                               }
-                            : element,
+                            : el,
                         ),
                       }));
                     }}
                     onResizeWidth={(id: string, width: number) => {
                       setCanvasState(prev => ({
                         ...prev,
-                        elements: prev.elements.map(element =>
-                          element.id === id && element.type === 'text'
+                        elements: prev.elements.map(el =>
+                          el.id === id && el.type === 'text'
                             ? {
-                                ...element,
-                                size: { ...element.size, width: Math.max(50, width) },
+                                ...el,
+                                size: { ...el.size, width: Math.max(DIMENSIONS.SPACING_50, width) },
                               }
-                            : element,
+                            : el,
                         ),
                       }));
                     }}
@@ -585,9 +628,9 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     onDuplicate={handleElementDuplicate}
                     onRotate={handleElementRotate}
                     onSizeChange={handleElementSizeChange}
-                    onSettings={(element: ImageElement) => {
+                    onSettings={(imageEl: ImageElement) => {
                       if (onImageElementSettings) {
-                        onImageElementSettings(element);
+                        onImageElementSettings(imageEl);
                       }
                     }}
                   />
@@ -600,6 +643,13 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           {renderSnapLines()}
         </>
       );
+    };
+
+    // Dynamic canvas styles
+    const canvasStyles = {
+      width: canvasState.canvasSize.width,
+      height: canvasState.canvasSize.height,
+      backgroundColor: selectedTemplate ? COLORS.TRANSPARENT : COLORS.WHITE,
     };
 
     return (
@@ -635,15 +685,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     },
                     animatedStyle,
                   ]}>
-                  <View
-                    style={[
-                      styles.canvas,
-                      {
-                        width: canvasState.canvasSize.width,
-                        height: canvasState.canvasSize.height,
-                        backgroundColor: selectedTemplate ? 'transparent' : COLORS.WHITE,
-                      },
-                    ]}>
+                  <View style={[styles.canvas, canvasStyles]}>
                     {renderCanvasContent()}
                   </View>
                 </Animated.View>

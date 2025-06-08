@@ -22,7 +22,6 @@ import { MEME_TEMPLATES } from '../constants/templates';
 import { DIMENSIONS } from '../constants/dimensions';
 import { COLORS } from '../constants/colors';
 import { baseStylePanelStyles } from '../styles/baseStylePanel';
-import MemeCanvas, { MemeCanvasRef } from '../components/MemeCanvas';
 import MemeCanvasWithGestureHandler from '../components/MemeCanvas/MemeCanvasWithGestureHandler';
 import TemplateSelector from '../components/TemplateSelector';
 import Dropdown, { DropdownItem } from '../components/Dropdown';

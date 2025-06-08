@@ -44,8 +44,8 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   // Calculate inverse scale for consistent button sizing
   const inverseScale = 1 / canvasScale;
   const scaledIconSize = DIMENSIONS.ICON_SIZE_MD * inverseScale;
-  const scaledFontSize = 12 * inverseScale;
-  const scaledOffset = 15 * inverseScale;
+  const scaledFontSize = DIMENSIONS.MIN_TEXT_SIZE * inverseScale;
+  const scaledOffset = DIMENSIONS.SPACING_15 * inverseScale;
 
   // Dynamic button styles that maintain consistent size regardless of canvas scale
   const buttonStyles = {
