@@ -26,7 +26,6 @@ export const COLOR_OPTIONS = [
 
 export const FONT_FAMILIES = [
   { label: 'System', value: 'System' },
-  { label: 'Default', value: undefined }, // Use default system font
   { label: 'Monospace', value: 'monospace' },
   { label: 'Sans-serif', value: 'sans-serif' },
   { label: 'Serif', value: 'serif' },

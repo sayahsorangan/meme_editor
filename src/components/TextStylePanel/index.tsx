@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { TextStyle } from '../../types';
 import { FONT_FAMILIES } from '../../constants';
 import { DIMENSIONS } from '../../constants/dimensions';
@@ -11,7 +11,9 @@ import OptionPicker from '../OptionPicker';
 
 export interface TextStylePanelProps {
   textStyle: TextStyle;
+  text: string;
   onStyleChange: (style: Partial<TextStyle>) => void;
+  onTextChange: (text: string) => void;
   onClose: () => void;
   onSave?: () => void;
   isVisible: boolean;
@@ -19,7 +21,9 @@ export interface TextStylePanelProps {
 
 const TextStylePanel: React.FC<TextStylePanelProps> = ({
   textStyle,
+  text,
   onStyleChange,
+  onTextChange,
   onClose,
   onSave,
   isVisible,
@@ -27,6 +31,10 @@ const TextStylePanel: React.FC<TextStylePanelProps> = ({
   if (!isVisible) {
     return null;
   }
+
+  const handleTextChange = (newText: string) => {
+    onTextChange(newText);
+  };
 
   const handleFontSizeChange = (fontSize: number) => {
     onStyleChange({ fontSize: Math.round(fontSize) });
@@ -36,7 +44,7 @@ const TextStylePanel: React.FC<TextStylePanelProps> = ({
     onStyleChange({ color });
   };
 
-  const handleFontFamilyChange = (fontFamily: string) => {
+  const handleFontFamilyChange = (fontFamily: string | undefined) => {
     onStyleChange({ fontFamily });
   };
 
@@ -104,6 +112,19 @@ const TextStylePanel: React.FC<TextStylePanelProps> = ({
 
       {/* Scrollable Content */}
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {/* Text Content */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Text Content</Text>
+          <TextInput
+            style={styles.textInput}
+            value={text}
+            onChangeText={handleTextChange}
+            placeholder="Enter your text here..."
+            multiline
+            textAlignVertical="top"
+          />
+        </View>
+
         {/* Font Size */}
         <SliderControl
           label="Font Size"

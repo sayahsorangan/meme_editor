@@ -17,6 +17,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 20,
     paddingTop: 16,
+    marginBottom: 32,
     borderTopWidth: 1,
     borderTopColor: COLORS.GRAY_300,
     gap: 12,
@@ -48,5 +49,17 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.WHITE,
+  },
+  // Text input style
+  textInput: {
+    borderWidth: 1,
+    borderColor: COLORS.GRAY_400,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: COLORS.TEXT_PRIMARY,
+    backgroundColor: COLORS.WHITE,
+    minHeight: 80,
+    maxHeight: 120,
   },
 });

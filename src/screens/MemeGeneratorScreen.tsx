@@ -68,6 +68,14 @@ const MemeGeneratorScreen: React.FC = () => {
     setShowTemplateSelector(true);
   }, []);
 
+  // Handle export functionality
+  const handleExport = useCallback(() => {
+    if (memeCanvasRef.current) {
+      // TODO: Implement export functionality
+      Alert.alert('Export', 'Export functionality will be implemented soon!');
+    }
+  }, []);
+
   // Image picker options
   const imagePickerOptions = {
     mediaType: 'photo' as MediaType,
@@ -265,6 +273,21 @@ const MemeGeneratorScreen: React.FC = () => {
     editingTextAlign,
   ]);
 
+  // Handle text content change
+  const handleTextContentChange = useCallback(
+    (newText: string) => {
+      setEditingText(newText);
+      if (editingTextElement && memeCanvasRef.current) {
+        const updatedElement: Partial<TextElement> = {
+          text: newText,
+        };
+        memeCanvasRef.current.updateTextElement(editingTextElement.id, updatedElement);
+        setEditingTextElement(prev => (prev ? { ...prev, text: newText } : null));
+      }
+    },
+    [editingTextElement]
+  );
+
   // Handle text style change
   const handleTextStyleChange = useCallback(
     (styleChanges: Partial<TextElement['style']>) => {
@@ -327,13 +350,18 @@ const MemeGeneratorScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.GRAY_800} />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.WHITE} />
 
       {/* Header */}
       <View style={styles.header}>
-        <Dropdown items={dropdownItems} onSelect={handleDropdownSelect} buttonText="+" />
-        <TouchableOpacity onPress={handleSelectTemplate} style={styles.selectTemplateButton}>
-          <Text style={styles.selectTemplateText}>Template</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={handleSelectTemplate} style={styles.templateButton}>
+            <Text style={styles.templateButtonText}>Template</Text>
+          </TouchableOpacity>
+          <Dropdown items={dropdownItems} onSelect={handleDropdownSelect} buttonText="+" />
+        </View>
+        <TouchableOpacity onPress={handleExport} style={styles.exportButton}>
+          <Text style={styles.exportButtonText}>Export</Text>
         </TouchableOpacity>
       </View>
 
@@ -364,6 +392,8 @@ const MemeGeneratorScreen: React.FC = () => {
                   textAlign: editingTextAlign,
                   fontWeight: editingFontWeight,
                 }}
+                text={editingText}
+                onTextChange={handleTextContentChange}
                 onStyleChange={styleChanges => {
                   // Update local state for all style properties
                   if (styleChanges.fontSize !== undefined)
@@ -430,9 +460,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.GRAY_800,
+    backgroundColor: COLORS.WHITE,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY_200,
   },
   selectTemplateButton: {
     paddingHorizontal: 16,
@@ -443,6 +475,31 @@ const styles = StyleSheet.create({
   selectTemplateText: {
     fontSize: 14,
     color: COLORS.WHITE,
+    fontWeight: '500',
+  },
+  templateButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: COLORS.GRAY_800,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  templateButtonText: {
+    fontSize: 14,
+    color: COLORS.WHITE,
+    fontWeight: '500',
+  },
+  exportButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'transparent',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.GRAY_800,
+  },
+  exportButtonText: {
+    fontSize: 14,
+    color: COLORS.GRAY_800,
     fontWeight: '500',
   },
   gestureInfo: {
