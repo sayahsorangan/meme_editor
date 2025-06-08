@@ -1,5 +1,37 @@
 // TypeScript types for the meme generator app
 
+// Utility types for better type safety
+export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+// Common prop types for components
+export interface BaseComponentProps {
+  testID?: string;
+  style?: object;
+}
+
+export interface InteractiveComponentProps extends BaseComponentProps {
+  disabled?: boolean;
+  onPress?: () => void;
+}
+
+// Color and styling types
+export type ColorValue = string;
+export type FontWeight =
+  | 'normal'
+  | 'bold'
+  | '100'
+  | '200'
+  | '300'
+  | '400'
+  | '500'
+  | '600'
+  | '700'
+  | '800'
+  | '900';
+
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+
 export interface Position {
   x: number;
   y: number;

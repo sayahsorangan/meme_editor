@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+
 import { ImageStyle } from '../../types';
+import { DIMENSIONS } from '../../constants/dimensions';
 import { baseStylePanelStyles } from '../../styles/baseStylePanel';
-import IconButton from '../IconButton';
+import { IconButton } from '../IconButton';
 import ColorPicker from '../ColorPicker';
 import SliderControl from '../SliderControl';
 
@@ -26,7 +28,9 @@ const ImageStylePanel: React.FC<ImageStylePanelProps> = ({
   }
 
   const handleOpacityChange = (opacity: number) => {
-    onStyleChange({ opacity: Math.round(opacity * 100) / 100 });
+    onStyleChange({
+      opacity: Math.round(opacity * DIMENSIONS.PERCENTAGE_100) / DIMENSIONS.PERCENTAGE_100,
+    });
   };
 
   const handleBorderRadiusChange = (borderRadius: number) => {

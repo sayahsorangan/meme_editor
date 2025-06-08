@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     color: COLORS.BLACK,
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
     padding: DIMENSIONS.SPACING_SM,
     minWidth: 50,
     minHeight: 30,

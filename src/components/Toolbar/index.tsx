@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+
 import { ToolbarAction } from '../../types';
 import { styles } from './styles';
-import IconButton from '../IconButton';
-import Button from '../Button';
+import { IconButton } from '../IconButton';
+import { Button } from '../Button';
 
 export interface ToolbarProps {
   title?: string;

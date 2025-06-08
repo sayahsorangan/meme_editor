@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import { TextElement, Position, Size } from '../../types';
 import { calculateSnapPosition } from '../../utils/helpers';
-import { DIMENSIONS } from '../../constants/dimensions';
 import { styles } from './styles';
+import { DIMENSIONS } from '../../constants/dimensions';
 
 export interface DraggableTextProps {
   element: TextElement;
@@ -21,7 +21,7 @@ export interface DraggableTextProps {
   onTextChange: (id: string, text: string) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
-  onDuplicate: (id: string) => void;
+  onDuplicate?: (id: string) => void;
   onRotate: (id: string, rotation: number) => void;
   onSettings: (id: string) => void;
   onResizeHeight: (id: string, height: number) => void;
@@ -36,7 +36,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   onTextChange,
   onSelect,
   onDelete,
-  onDuplicate,
+  onDuplicate: _onDuplicate,
   onRotate,
   onSettings,
   onResizeHeight,
@@ -44,7 +44,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localText, setLocalText] = useState(element.text);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
   const [isResizingHeight, setIsResizingHeight] = useState(false);
   const [isResizingWidth, setIsResizingWidth] = useState(false);
@@ -64,11 +64,11 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     centerX: number,
     centerY: number,
     touchX: number,
-    touchY: number
+    touchY: number,
   ): number => {
     const deltaX = touchX - centerX;
     const deltaY = touchY - centerY;
-    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    return Math.atan2(deltaY, deltaX) * (DIMENSIONS.ANGLE_180 / Math.PI);
   };
 
   // Rotation PanResponder for the rotate handle
@@ -95,7 +95,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
               centerX,
               centerY,
               evt.nativeEvent.pageX,
-              evt.nativeEvent.pageY
+              evt.nativeEvent.pageY,
             );
 
             // Store the difference between current rotation and touch angle
@@ -117,14 +117,15 @@ const DraggableText: React.FC<DraggableTextProps> = ({
           centerX,
           centerY,
           evt.nativeEvent.pageX,
-          evt.nativeEvent.pageY
+          evt.nativeEvent.pageY,
         );
 
         // Calculate new rotation by adding the initial angle offset
         let newRotation = initialAngle.current + touchAngle;
 
         // Normalize to 0-360 degrees
-        newRotation = ((newRotation % 360) + 360) % 360;
+        newRotation =
+          ((newRotation % DIMENSIONS.ANGLE_360) + DIMENSIONS.ANGLE_360) % DIMENSIONS.ANGLE_360;
 
         onRotate(element.id, newRotation);
       },
@@ -135,7 +136,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   // Height resize PanResponder
@@ -152,7 +153,10 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         // Calculate new height based on vertical movement
-        const newHeight = Math.max(30, initialSize.current.height + gestureState.dy);
+        const newHeight = Math.max(
+          DIMENSIONS.SPACING_30,
+          initialSize.current.height + gestureState.dy,
+        );
         onResizeHeight(element.id, newHeight);
       },
 
@@ -162,7 +166,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   // Width resize PanResponder
@@ -179,7 +183,10 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         // Calculate new width based on horizontal movement
-        const newWidth = Math.max(50, initialSize.current.width + gestureState.dx);
+        const newWidth = Math.max(
+          DIMENSIONS.SPACING_50,
+          initialSize.current.width + gestureState.dx,
+        );
         onResizeWidth(element.id, newWidth);
       },
 
@@ -189,23 +196,28 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: evt => {
+      onStartShouldSetPanResponder: _evt => {
         // Don't capture if we're currently resizing or rotating
-        if (isResizingHeight || isResizingWidth || isRotating) return false;
+        if (isResizingHeight || isResizingWidth || isRotating) {
+          return false;
+        }
         // Always try to capture touch events on text elements
         return true;
       },
       onMoveShouldSetPanResponder: (evt, gestureState) => {
         // Don't drag if we're currently resizing or rotating
-        if (isResizingHeight || isResizingWidth || isRotating) return false;
+        if (isResizingHeight || isResizingWidth || isRotating) {
+          return false;
+        }
         // Only start dragging if we're not editing and movement is significant
         const isSignificantMovement =
-          Math.abs(gestureState.dx) > 3 || Math.abs(gestureState.dy) > 3;
+          Math.abs(gestureState.dx) > DIMENSIONS.SPACING_3 ||
+          Math.abs(gestureState.dy) > DIMENSIONS.SPACING_3;
         return !isEditing && isSignificantMovement;
       },
 
@@ -223,7 +235,9 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       },
 
       onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        if (isEditing) return;
+        if (isEditing) {
+          return;
+        }
 
         // Calculate new position based on the initial position plus gesture movement
         const newPosition = {
@@ -245,7 +259,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       // High priority to capture gestures over parent canvas
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   // Update local text when element text changes externally
@@ -268,16 +282,12 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     onDelete(element.id);
   };
 
-  const handleDuplicate = () => {
-    onDuplicate(element.id);
-  };
-
   const handleSettings = () => {
     onSettings(element.id);
   };
 
   const getTextStyle = () => {
-    const baseStyle: any = {
+    const baseStyle: Record<string, unknown> = {
       ...styles.textDisplay,
       fontSize: element.style.fontSize,
       color: element.style.color,

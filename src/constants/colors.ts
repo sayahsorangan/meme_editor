@@ -13,6 +13,7 @@ export const COLORS = {
   // Neutral colors
   WHITE: '#FFFFFF',
   BLACK: '#000000',
+  TRANSPARENT: 'transparent',
   GRAY_100: '#F8F9FA',
   GRAY_200: '#E9ECEF',
   GRAY_300: '#DEE2E6',
@@ -42,8 +43,13 @@ export const COLORS = {
   // Border colors
   BORDER_PRIMARY: '#DEE2E6',
   BORDER_SECONDARY: '#CED4DA',
+  BORDER_TRANSPARENT: 'transparent',
 
   // Overlay colors
   OVERLAY_DARK: 'rgba(0, 0, 0, 0.5)',
   OVERLAY_LIGHT: 'rgba(255, 255, 255, 0.8)',
+  OVERLAY_SUBTLE: 'rgba(0, 0, 0, 0.1)',
+
+  // Shadow colors
+  SHADOW_COLOR: '#000',
 } as const;

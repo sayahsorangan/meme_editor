@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   Image,
   ActivityIndicator,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import { MemeTemplate } from '../../types';
 import { COLORS } from '../../constants/colors';
+import { DIMENSIONS } from '../../constants/dimensions';
 import { styles } from './styles';
 
 export interface TemplateSelectorProps {
@@ -34,7 +34,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
 }) => {
   const screenWidth = Dimensions.get('window').width;
   const numColumns = 2;
-  const itemWidth = (screenWidth - 48) / numColumns; // 48 = padding + gaps
+  const itemWidth = (screenWidth - DIMENSIONS.SPACING_48) / numColumns;
 
   const renderTemplate = ({ item: template }: { item: MemeTemplate }) => {
     const isSelected = selectedTemplate?.id === template.id;

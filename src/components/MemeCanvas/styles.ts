@@ -5,7 +5,7 @@ import { DIMENSIONS } from '../../constants/dimensions';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
     paddingHorizontal: DIMENSIONS.SPACING_LG,
     paddingVertical: DIMENSIONS.SPACING_MD,
     justifyContent: 'center',

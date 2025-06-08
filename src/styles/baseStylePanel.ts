@@ -7,7 +7,7 @@ export const baseStylePanelStyles = StyleSheet.create({
   // Modal wrapper styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: COLORS.OVERLAY_DARK,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -71,7 +71,7 @@ export const baseStylePanelStyles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: DIMENSIONS.BORDER_WIDTH_MEDIUM,
-    borderColor: 'transparent',
+    borderColor: COLORS.TRANSPARENT,
   },
   selectedColor: {
     borderColor: COLORS.PRIMARY,

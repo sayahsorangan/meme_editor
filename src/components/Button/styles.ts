@@ -1,6 +1,8 @@
 import { StyleSheet } from 'react-native';
+
 import { COLORS } from '../../constants/colors';
 import { DIMENSIONS } from '../../constants/dimensions';
+import { TEXT_STYLES } from '../../constants/typography';
 
 export const styles = StyleSheet.create({
   button: {
@@ -18,12 +20,12 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.SECONDARY,
   },
   outline: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
     borderWidth: DIMENSIONS.BORDER_WIDTH_THIN,
     borderColor: COLORS.PRIMARY,
   },
   text: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
   },
   disabled: {
     backgroundColor: COLORS.GRAY_400,
@@ -37,8 +39,13 @@ export const styles = StyleSheet.create({
     paddingVertical: DIMENSIONS.SPACING_LG,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...TEXT_STYLES.BUTTON,
+  },
+  buttonTextSmall: {
+    ...TEXT_STYLES.BUTTON_SMALL,
+  },
+  buttonTextLarge: {
+    ...TEXT_STYLES.BUTTON_LARGE,
   },
   primaryText: {
     color: COLORS.TEXT_WHITE,

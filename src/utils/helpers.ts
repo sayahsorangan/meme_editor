@@ -5,7 +5,10 @@ import { DIMENSIONS } from '../constants/dimensions';
  * Generate a unique ID for elements
  */
 export const generateId = (): string => {
-  return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const randomString = Math.random()
+    .toString(DIMENSIONS.MATH_RADIX_36)
+    .substr(2, DIMENSIONS.MATH_RADIX_9);
+  return `${Date.now()}_${randomString}`;
 };
 
 /**
@@ -18,7 +21,7 @@ export const generateId = (): string => {
 export const calculateSnapPosition = (
   position: Position,
   canvasSize: Size,
-  elementSize: Size
+  elementSize: Size,
 ): Position => {
   const { SNAP_THRESHOLD } = DIMENSIONS;
 
@@ -84,7 +87,7 @@ export const calculateDistance = (point1: Position, point2: Position): number =>
 export const isPointInRectangle = (
   point: Position,
   rectPosition: Position,
-  rectSize: Size
+  rectSize: Size,
 ): boolean => {
   return (
     point.x >= rectPosition.x &&
@@ -103,9 +106,9 @@ export const hexToRgba = (hex: string, alpha: number = 1): string => {
     return hex;
   }
 
-  const r = parseInt(result[1], 16);
-  const g = parseInt(result[2], 16);
-  const b = parseInt(result[3], 16);
+  const r = parseInt(result[1], DIMENSIONS.HEX_RADIX);
+  const g = parseInt(result[2], DIMENSIONS.HEX_RADIX);
+  const b = parseInt(result[DIMENSIONS.RGB_BLUE_INDEX], DIMENSIONS.HEX_RADIX);
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
@@ -113,9 +116,10 @@ export const hexToRgba = (hex: string, alpha: number = 1): string => {
 /**
  * Debounce function to limit the rate of function execution
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
 

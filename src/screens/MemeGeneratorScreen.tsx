@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -19,6 +19,7 @@ import {
 } from 'react-native-image-picker';
 import { MemeTemplate, TextElement, ImageElement } from '../types';
 import { MEME_TEMPLATES } from '../constants/templates';
+import { DIMENSIONS } from '../constants/dimensions';
 import { COLORS } from '../constants/colors';
 import { baseStylePanelStyles } from '../styles/baseStylePanel';
 import MemeCanvas, { MemeCanvasRef } from '../components/MemeCanvas';
@@ -30,7 +31,7 @@ import ImageStylePanel from '../components/ImageStylePanel';
 const MemeGeneratorScreen: React.FC = () => {
   // Start with the blank document template selected by default
   const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate | null>(
-    MEME_TEMPLATES.find(template => template.id === 'blank_document') || null
+    MEME_TEMPLATES.find(template => template.id === 'blank_document') || null,
   );
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showTextStyleModal, setShowTextStyleModal] = useState(false);
@@ -40,7 +41,7 @@ const MemeGeneratorScreen: React.FC = () => {
 
   // Local state for text style editing
   const [editingText, setEditingText] = useState('');
-  const [editingFontSize, setEditingFontSize] = useState(20);
+  const [editingFontSize, setEditingFontSize] = useState(DIMENSIONS.SPACING_20 as number);
   const [editingFontFamily, setEditingFontFamily] = useState<string | undefined>(undefined);
   const [editingColor, setEditingColor] = useState('#000000');
   const [editingFontWeight, setEditingFontWeight] = useState<
@@ -77,13 +78,16 @@ const MemeGeneratorScreen: React.FC = () => {
   }, []);
 
   // Image picker options
-  const imagePickerOptions = {
-    mediaType: 'photo' as MediaType,
-    includeBase64: false,
-    maxHeight: 2000,
-    maxWidth: 2000,
-    quality: 0.8 as any, // Type assertion to handle quality type
-  };
+  const imagePickerOptions = useMemo(
+    () => ({
+      mediaType: 'photo' as MediaType,
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
+      quality: DIMENSIONS.CANVAS_MEDIUM_SCALE,
+    }),
+    [],
+  );
 
   // Request camera permission for Android
   const requestCameraPermission = async (): Promise<boolean> => {
@@ -98,7 +102,7 @@ const MemeGeneratorScreen: React.FC = () => {
         });
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       } catch (err) {
-        console.warn('Camera permission request error:', err);
+        // Handle camera permission request error silently
         return false;
       }
     }
@@ -110,7 +114,7 @@ const MemeGeneratorScreen: React.FC = () => {
     if (Platform.OS === 'android') {
       try {
         const permission =
-          Platform.Version >= 33
+          Platform.Version >= DIMENSIONS.SPACING_33
             ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
             : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
 
@@ -123,7 +127,7 @@ const MemeGeneratorScreen: React.FC = () => {
         });
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       } catch (err) {
-        console.warn('Storage permission request error:', err);
+        // Handle storage permission request error silently
         return false;
       }
     }
@@ -137,8 +141,9 @@ const MemeGeneratorScreen: React.FC = () => {
     if (!hasPermission) {
       Alert.alert(
         'Permission Required',
-        'Storage permission is required to access your photos. Please enable it in your device settings.',
-        [{ text: 'OK' }]
+        'Storage permission is required to access your photos. ' +
+          'Please enable it in your device settings.',
+        [{ text: 'OK' }],
       );
       return;
     }
@@ -158,7 +163,7 @@ const MemeGeneratorScreen: React.FC = () => {
         }
       }
     });
-  }, []);
+  }, [imagePickerOptions]);
 
   // Handle image selection from camera
   const handleSelectImageFromCamera = useCallback(async () => {
@@ -168,7 +173,7 @@ const MemeGeneratorScreen: React.FC = () => {
       Alert.alert(
         'Permission Required',
         'Camera permission is required to take photos. Please enable it in your device settings.',
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
       return;
     }
@@ -188,12 +193,14 @@ const MemeGeneratorScreen: React.FC = () => {
         }
       }
     });
-  }, []);
+  }, [imagePickerOptions]);
 
   // Handle dropdown item selection
   const handleDropdownSelect = useCallback(
     (item: DropdownItem) => {
-      if (!memeCanvasRef.current) return;
+      if (!memeCanvasRef.current) {
+        return;
+      }
 
       switch (item.id) {
         case 'add_text':
@@ -206,10 +213,11 @@ const MemeGeneratorScreen: React.FC = () => {
           handleSelectImageFromCamera();
           break;
         default:
-          console.log('Unknown dropdown item:', item.id);
+          // Handle unknown dropdown item silently
+          break;
       }
     },
-    [handleSelectImageFromGallery, handleSelectImageFromCamera]
+    [handleSelectImageFromGallery, handleSelectImageFromCamera],
   );
 
   // Handle add text element
@@ -285,7 +293,7 @@ const MemeGeneratorScreen: React.FC = () => {
         setEditingTextElement(prev => (prev ? { ...prev, text: newText } : null));
       }
     },
-    [editingTextElement]
+    [editingTextElement],
   );
 
   // Handle text style change
@@ -301,11 +309,11 @@ const MemeGeneratorScreen: React.FC = () => {
 
         memeCanvasRef.current.updateTextElement(editingTextElement.id, updatedElement);
         setEditingTextElement(prev =>
-          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null,
         );
       }
     },
-    [editingTextElement]
+    [editingTextElement],
   );
 
   // Handle text style modal close
@@ -327,11 +335,11 @@ const MemeGeneratorScreen: React.FC = () => {
 
         memeCanvasRef.current.updateImageElement(editingImageElement.id, updatedElement);
         setEditingImageElement(prev =>
-          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null,
         );
       }
     },
-    [editingImageElement]
+    [editingImageElement],
   );
 
   // Handle image style modal close
@@ -354,7 +362,7 @@ const MemeGeneratorScreen: React.FC = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={styles.headerRow}>
           <TouchableOpacity onPress={handleSelectTemplate} style={styles.templateButton}>
             <Text style={styles.templateButtonText}>Template</Text>
           </TouchableOpacity>
@@ -396,15 +404,21 @@ const MemeGeneratorScreen: React.FC = () => {
                 onTextChange={handleTextContentChange}
                 onStyleChange={styleChanges => {
                   // Update local state for all style properties
-                  if (styleChanges.fontSize !== undefined)
+                  if (styleChanges.fontSize !== undefined) {
                     setEditingFontSize(styleChanges.fontSize);
-                  if (styleChanges.fontFamily !== undefined)
+                  }
+                  if (styleChanges.fontFamily !== undefined) {
                     setEditingFontFamily(styleChanges.fontFamily);
-                  if (styleChanges.color !== undefined) setEditingColor(styleChanges.color);
-                  if (styleChanges.fontWeight !== undefined)
+                  }
+                  if (styleChanges.color !== undefined) {
+                    setEditingColor(styleChanges.color);
+                  }
+                  if (styleChanges.fontWeight !== undefined) {
                     setEditingFontWeight(styleChanges.fontWeight);
-                  if (styleChanges.textAlign !== undefined)
+                  }
+                  if (styleChanges.textAlign !== undefined) {
                     setEditingTextAlign(styleChanges.textAlign);
+                  }
 
                   // Immediately apply style changes to the canvas
                   handleTextStyleChange(styleChanges);
@@ -466,16 +480,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.GRAY_200,
   },
-  selectTemplateButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 16,
-  },
-  selectTemplateText: {
-    fontSize: 14,
-    color: COLORS.WHITE,
-    fontWeight: '500',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   templateButton: {
     paddingHorizontal: 16,
@@ -492,7 +500,7 @@ const styles = StyleSheet.create({
   exportButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
     borderRadius: 6,
     borderWidth: 1,
     borderColor: COLORS.GRAY_800,
@@ -501,40 +509,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.GRAY_800,
     fontWeight: '500',
-  },
-  gestureInfo: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.GRAY_200,
-  },
-  gestureText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.GRAY_800,
-    textAlign: 'center',
-  },
-  bottomToolbar: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: COLORS.GRAY_800,
-    gap: 12,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  bottomButton: {
-    borderRadius: 8,
-    minHeight: 44,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bottomButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: COLORS.WHITE,
   },
 });
 

@@ -8,6 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import { styles } from './styles';
+import { DIMENSIONS } from '../../constants/dimensions';
 
 export interface DropdownItem {
   id: string;
@@ -23,13 +24,7 @@ export interface DropdownProps {
   placeholder?: string;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({
-  items,
-  onSelect,
-  buttonText = '+',
-  buttonIcon,
-  placeholder = 'Select an option',
-}) => {
+const Dropdown: React.FC<DropdownProps> = ({ items, onSelect, buttonText = '+', buttonIcon }) => {
   const [visible, setVisible] = useState(false);
   const [buttonLayout, setButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -40,7 +35,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       toValue: 1,
       useNativeDriver: true,
       tension: 100,
-      friction: 8,
+      friction: DIMENSIONS.SPACING_SM,
     }).start();
   };
 
@@ -59,7 +54,11 @@ const Dropdown: React.FC<DropdownProps> = ({
     onSelect(item);
   };
 
-  const handleButtonLayout = (event: any) => {
+  const handleButtonLayout = (event: {
+    nativeEvent: {
+      layout: { x: number; y: number; width: number; height: number };
+    };
+  }) => {
     const { x, y, width, height } = event.nativeEvent.layout;
     setButtonLayout({ x, y, width, height });
   };
@@ -82,7 +81,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               style={[
                 styles.dropdown,
                 {
-                  top: buttonLayout.y + buttonLayout.height + 8,
+                  top: buttonLayout.y + buttonLayout.height + DIMENSIONS.SPACING_SM,
                   left: buttonLayout.x,
                   minWidth: buttonLayout.width,
                   transform: [

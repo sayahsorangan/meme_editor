@@ -25,13 +25,13 @@ export const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: COLORS.OVERLAY_SUBTLE,
   },
   dropdown: {
     position: 'absolute',
     backgroundColor: COLORS.WHITE,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: COLORS.BLACK,
     shadowOffset: {
       width: 0,
       height: 2,

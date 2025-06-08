@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     height: 120,
     borderRadius: DIMENSIONS.BORDER_RADIUS_MD,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: COLORS.TRANSPARENT,
   },
   selectedTemplate: {
     borderColor: COLORS.PRIMARY,

@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
+
 import { styles } from './styles';
 
 export interface IconButtonProps {
@@ -12,7 +13,7 @@ export interface IconButtonProps {
   testID?: string;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({
+export const IconButton: React.FC<IconButtonProps> = ({
   icon,
   onPress,
   variant = 'transparent',
@@ -21,8 +22,8 @@ const IconButton: React.FC<IconButtonProps> = ({
   style,
   testID,
 }) => {
-  const getButtonStyle = () => {
-    const baseStyles: any[] = [styles.button];
+  const getButtonStyle = (): ViewStyle[] => {
+    const baseStyles: ViewStyle[] = [styles.button];
 
     // Add variant styles
     switch (variant) {
@@ -38,13 +39,22 @@ const IconButton: React.FC<IconButtonProps> = ({
       case 'transparent':
         baseStyles.push(styles.transparent);
         break;
+      default:
+        baseStyles.push(styles.transparent);
     }
 
     // Add size styles
-    if (size === 'small') {
-      baseStyles.push(styles.small);
-    } else if (size === 'large') {
-      baseStyles.push(styles.large);
+    switch (size) {
+      case 'small':
+        baseStyles.push(styles.small);
+        break;
+      case 'large':
+        baseStyles.push(styles.large);
+        break;
+      case 'medium':
+      default:
+        // Medium is the default, no additional styles needed
+        break;
     }
 
     // Add disabled styles
@@ -60,8 +70,8 @@ const IconButton: React.FC<IconButtonProps> = ({
     return baseStyles;
   };
 
-  const getIconStyle = () => {
-    const baseStyles: any[] = [styles.icon];
+  const getIconStyle = (): TextStyle[] => {
+    const baseStyles: TextStyle[] = [styles.icon];
 
     // Add variant icon styles
     switch (variant) {
@@ -77,6 +87,8 @@ const IconButton: React.FC<IconButtonProps> = ({
       case 'transparent':
         baseStyles.push(styles.transparentIcon);
         break;
+      default:
+        baseStyles.push(styles.transparentIcon);
     }
 
     // Add disabled icon styles
@@ -98,5 +110,3 @@ const IconButton: React.FC<IconButtonProps> = ({
     </TouchableOpacity>
   );
 };
-
-export default IconButton;

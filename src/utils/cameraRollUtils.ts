@@ -27,11 +27,11 @@ export const requestCameraRollPermissions = async (): Promise<boolean> => {
           buttonNeutral: 'Ask Me Later',
           buttonNegative: 'Cancel',
           buttonPositive: 'OK',
-        }
+        },
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (err) {
-      console.warn('Permission request error:', err);
+      // Silent error handling - permission request failed
       return false;
     }
   }
@@ -43,7 +43,7 @@ export const requestCameraRollPermissions = async (): Promise<boolean> => {
  */
 export const saveImageToCameraRoll = async (
   imageUri: string,
-  options?: SaveImageOptions
+  options?: SaveImageOptions,
 ): Promise<boolean> => {
   try {
     const hasPermission = await requestCameraRollPermissions();
@@ -58,7 +58,7 @@ export const saveImageToCameraRoll = async (
 
     return true;
   } catch (error) {
-    console.error('Error saving image to camera roll:', error);
+    // Silent error handling - save failed
     return false;
   }
 };
@@ -82,7 +82,7 @@ export const getPhotosFromCameraRoll = async (options: GetPhotosOptions) => {
 
     return result;
   } catch (error) {
-    console.error('Error getting photos from camera roll:', error);
+    // Silent error handling - re-throw for caller to handle
     throw error;
   }
 };
@@ -91,7 +91,7 @@ export const getPhotosFromCameraRoll = async (options: GetPhotosOptions) => {
  * Save a meme to camera roll with proper error handling
  */
 export const saveMemeToGallery = async (
-  memeUri: string
+  memeUri: string,
 ): Promise<{
   success: boolean;
   message: string;

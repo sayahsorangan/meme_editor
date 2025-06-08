@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+
 import { TextStyle } from '../../types';
 import { FONT_FAMILIES } from '../../constants';
 import { DIMENSIONS } from '../../constants/dimensions';
 import { styles } from './styles';
-import IconButton from '../IconButton';
+import { IconButton } from '../IconButton';
 import ColorPicker from '../ColorPicker';
 import SliderControl from '../SliderControl';
 import OptionPicker from '../OptionPicker';

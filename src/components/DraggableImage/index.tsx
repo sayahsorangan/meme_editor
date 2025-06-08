@@ -11,6 +11,7 @@ import {
 import { ImageElement, Position, Size } from '../../types';
 import { calculateSnapPosition } from '../../utils/helpers';
 import { styles } from './styles';
+import { DIMENSIONS } from '../../constants/dimensions';
 
 export interface DraggableImageProps {
   element: ImageElement;
@@ -19,7 +20,7 @@ export interface DraggableImageProps {
   onPositionChange: (id: string, position: Position) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
-  onDuplicate: (id: string) => void;
+  onDuplicate?: (id: string) => void;
   onRotate?: (id: string, rotation: number) => void;
   onSizeChange?: (id: string, size: Size) => void;
   onSettings?: (element: ImageElement) => void;
@@ -32,12 +33,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   onPositionChange,
   onSelect,
   onDelete,
-  onDuplicate,
+  onDuplicate: _onDuplicate,
   onRotate,
   onSizeChange,
   onSettings,
 }) => {
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const initialAngle = useRef(0);
@@ -57,11 +58,11 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
     centerX: number,
     centerY: number,
     touchX: number,
-    touchY: number
+    touchY: number,
   ): number => {
     const deltaX = touchX - centerX;
     const deltaY = touchY - centerY;
-    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    return Math.atan2(deltaY, deltaX) * (DIMENSIONS.ANGLE_180 / Math.PI);
   };
 
   // Rotation PanResponder for the rotate handle
@@ -88,7 +89,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
               centerX,
               centerY,
               evt.nativeEvent.pageX,
-              evt.nativeEvent.pageY
+              evt.nativeEvent.pageY,
             );
 
             // Store the difference between current rotation and touch angle
@@ -98,7 +99,9 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       },
 
       onPanResponderMove: (evt: GestureResponderEvent) => {
-        if (!onRotate) return;
+        if (!onRotate) {
+          return;
+        }
 
         // Use stored container position instead of measuring every time
         const { x: pageX, y: pageY, width, height } = containerPosition.current;
@@ -112,14 +115,15 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
           centerX,
           centerY,
           evt.nativeEvent.pageX,
-          evt.nativeEvent.pageY
+          evt.nativeEvent.pageY,
         );
 
         // Calculate new rotation by adding the initial angle offset
         let newRotation = initialAngle.current + touchAngle;
 
         // Normalize to 0-360 degrees
-        newRotation = ((newRotation % 360) + 360) % 360;
+        newRotation =
+          ((newRotation % DIMENSIONS.ANGLE_360) + DIMENSIONS.ANGLE_360) % DIMENSIONS.ANGLE_360;
 
         onRotate(element.id, newRotation);
       },
@@ -130,7 +134,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   // Resize PanResponder for the resize handle
@@ -139,7 +143,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
 
-      onPanResponderGrant: (evt: GestureResponderEvent) => {
+      onPanResponderGrant: (_evt: GestureResponderEvent) => {
         setIsResizing(true);
         onSelect(element.id);
 
@@ -148,15 +152,17 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         initialAspectRatio.current = element.size.width / element.size.height;
       },
 
-      onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        if (!onSizeChange) return;
+      onPanResponderMove: (_evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        if (!onSizeChange) {
+          return;
+        }
 
         // Calculate new size based on diagonal movement
         const deltaX = gestureState.dx;
         const deltaY = gestureState.dy;
 
         // Use the average of both dimensions for proportional scaling
-        const scaleFactor = 1 + (deltaX + deltaY) / 200; // Adjust sensitivity
+        const scaleFactor = 1 + (deltaX + deltaY) / DIMENSIONS.ANIMATION_DURATION_200;
 
         let newWidth = initialSize.current.width * scaleFactor;
         let newHeight = initialSize.current.height * scaleFactor;
@@ -171,8 +177,9 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         }
 
         // Apply minimum and maximum size constraints
-        const minSize = 50;
-        const maxSize = Math.min(canvasSize.width, canvasSize.height) * 0.8;
+        const minSize = DIMENSIONS.SPACING_50;
+        const maxSize =
+          Math.min(canvasSize.width, canvasSize.height) * DIMENSIONS.CANVAS_MEDIUM_SCALE;
 
         newWidth = Math.max(minSize, Math.min(maxSize, newWidth));
         newHeight = Math.max(minSize, Math.min(maxSize, newHeight));
@@ -195,23 +202,28 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: evt => {
+      onStartShouldSetPanResponder: _evt => {
         // Don't capture if we're rotating or resizing
-        if (isRotating || isResizing) return false;
+        if (isRotating || isResizing) {
+          return false;
+        }
         // Always try to capture touch events on image elements
         return true;
       },
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
+      onMoveShouldSetPanResponder: (_evt, gestureState) => {
         // Don't move if we're rotating or resizing
-        if (isRotating || isResizing) return false;
+        if (isRotating || isResizing) {
+          return false;
+        }
         // Only start dragging if movement is significant
         const isSignificantMovement =
-          Math.abs(gestureState.dx) > 3 || Math.abs(gestureState.dy) > 3;
+          Math.abs(gestureState.dx) > DIMENSIONS.SPACING_3 ||
+          Math.abs(gestureState.dy) > DIMENSIONS.SPACING_3;
         return isSignificantMovement;
       },
 
@@ -228,7 +240,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         setDragOffset({ x: touchX, y: touchY });
       },
 
-      onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+      onPanResponderMove: (_evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
         // Calculate new position based on the initial position plus gesture movement
         const newPosition = {
           x: dragStartPosition.current.x + gestureState.dx,
@@ -249,22 +261,11 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       // High priority to capture gestures over parent canvas
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   const handleDelete = () => {
     onDelete(element.id);
-  };
-
-  const handleDuplicate = () => {
-    onDuplicate(element.id);
-  };
-
-  const handleRotate = () => {
-    if (onRotate) {
-      const newRotation = (element.rotation + 45) % 360;
-      onRotate(element.id, newRotation);
-    }
   };
 
   const handleSettings = () => {
@@ -303,8 +304,8 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         source={{ uri: element.imageUrl }}
         style={getImageStyle()}
         resizeMode="contain"
-        onError={error => {
-          console.warn('Failed to load image:', error);
+        onError={_error => {
+          // Handle image load error silently
         }}
       />
 
@@ -315,7 +316,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={handleDelete}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            hitSlop={{
+              top: DIMENSIONS.SNAP_THRESHOLD,
+              bottom: DIMENSIONS.SNAP_THRESHOLD,
+              left: DIMENSIONS.SNAP_THRESHOLD,
+              right: DIMENSIONS.SNAP_THRESHOLD,
+            }}>
             <Text style={styles.deleteIcon}>×</Text>
           </TouchableOpacity>
 
@@ -324,7 +330,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
             <View
               {...rotationPanResponder.panHandlers}
               style={styles.rotateHandle}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              hitSlop={{
+                top: DIMENSIONS.SNAP_THRESHOLD,
+                bottom: DIMENSIONS.SNAP_THRESHOLD,
+                left: DIMENSIONS.SNAP_THRESHOLD,
+                right: DIMENSIONS.SNAP_THRESHOLD,
+              }}>
               <Text style={styles.rotateIcon}>↻</Text>
             </View>
           )}
@@ -334,7 +345,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
             <View
               {...resizePanResponder.panHandlers}
               style={styles.resizeHandle}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              hitSlop={{
+                top: DIMENSIONS.SNAP_THRESHOLD,
+                bottom: DIMENSIONS.SNAP_THRESHOLD,
+                left: DIMENSIONS.SNAP_THRESHOLD,
+                right: DIMENSIONS.SNAP_THRESHOLD,
+              }}>
               <Text style={styles.resizeIcon}>⤡</Text>
             </View>
           )}
@@ -344,7 +360,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
             <TouchableOpacity
               style={styles.settingsButton}
               onPress={handleSettings}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              hitSlop={{
+                top: DIMENSIONS.SNAP_THRESHOLD,
+                bottom: DIMENSIONS.SNAP_THRESHOLD,
+                left: DIMENSIONS.SNAP_THRESHOLD,
+                right: DIMENSIONS.SNAP_THRESHOLD,
+              }}>
               <Text style={styles.settingsIcon}>⚙</Text>
             </TouchableOpacity>
           )}

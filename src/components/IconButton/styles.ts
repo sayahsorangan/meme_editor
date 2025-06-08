@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+
 import { COLORS } from '../../constants/colors';
 import { DIMENSIONS } from '../../constants/dimensions';
 
@@ -16,12 +17,12 @@ export const styles = StyleSheet.create({
     backgroundColor: COLORS.SECONDARY,
   },
   outline: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
     borderWidth: DIMENSIONS.BORDER_WIDTH_THIN,
-    borderColor: COLORS.BORDER_PRIMARY,
+    borderColor: COLORS.PRIMARY,
   },
   transparent: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.TRANSPARENT,
   },
   disabled: {
     backgroundColor: COLORS.GRAY_400,

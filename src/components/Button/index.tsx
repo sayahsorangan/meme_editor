@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
+
 import { styles } from './styles';
 
 export interface ButtonProps {
@@ -13,7 +14,7 @@ export interface ButtonProps {
   testID?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
   variant = 'primary',
@@ -23,8 +24,8 @@ const Button: React.FC<ButtonProps> = ({
   textStyle,
   testID,
 }) => {
-  const getButtonStyle = () => {
-    const baseStyles: any[] = [styles.button];
+  const getButtonStyle = (): ViewStyle[] => {
+    const baseStyles: ViewStyle[] = [styles.button];
 
     // Add variant styles
     switch (variant) {
@@ -40,13 +41,22 @@ const Button: React.FC<ButtonProps> = ({
       case 'text':
         baseStyles.push(styles.text);
         break;
+      default:
+        baseStyles.push(styles.primary);
     }
 
     // Add size styles
-    if (size === 'small') {
-      baseStyles.push(styles.small);
-    } else if (size === 'large') {
-      baseStyles.push(styles.large);
+    switch (size) {
+      case 'small':
+        baseStyles.push(styles.small);
+        break;
+      case 'large':
+        baseStyles.push(styles.large);
+        break;
+      case 'medium':
+      default:
+        // Medium is the default, no additional styles needed
+        break;
     }
 
     // Add disabled styles
@@ -62,8 +72,22 @@ const Button: React.FC<ButtonProps> = ({
     return baseStyles;
   };
 
-  const getTextStyle = () => {
-    const baseStyles: any[] = [styles.buttonText];
+  const getTextStyle = (): TextStyle[] => {
+    const baseStyles: TextStyle[] = [styles.buttonText];
+
+    // Add size-specific text styles
+    switch (size) {
+      case 'small':
+        baseStyles.push(styles.buttonTextSmall);
+        break;
+      case 'large':
+        baseStyles.push(styles.buttonTextLarge);
+        break;
+      case 'medium':
+      default:
+        // Default text style already applied
+        break;
+    }
 
     // Add variant text styles
     switch (variant) {
@@ -79,6 +103,8 @@ const Button: React.FC<ButtonProps> = ({
       case 'text':
         baseStyles.push(styles.textText);
         break;
+      default:
+        baseStyles.push(styles.primaryText);
     }
 
     // Add disabled text styles
@@ -105,5 +131,3 @@ const Button: React.FC<ButtonProps> = ({
     </TouchableOpacity>
   );
 };
-
-export default Button;

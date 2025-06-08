@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { COLORS } from '../../constants';
+import { DIMENSIONS } from '../../constants/dimensions';
 import { baseStylePanelStyles } from '../../styles/baseStylePanel';
 
 interface SliderControlProps {
@@ -25,7 +26,7 @@ const SliderControl: React.FC<SliderControlProps> = ({
 }) => {
   const formatValue = (val: number) => {
     if (unit === '%') {
-      return `${Math.round(val * 100)}%`;
+      return `${Math.round(val * DIMENSIONS.PERCENTAGE_100)}%`;
     }
     return `${Math.round(val)}${unit}`;
   };
