@@ -480,6 +480,46 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       }));
     }, []);
 
+    // Handle text element rotation (draggable rotation)
+    const handleTextRotate = useCallback((elementId: string, rotation: number) => {
+      setCanvasState(prev => ({
+        ...prev,
+        elements: prev.elements.map(element =>
+          element.id === elementId && element.type === 'text' ? { ...element, rotation } : element
+        ),
+      }));
+    }, []);
+
+    // Handle text element settings (placeholder for now)
+    const handleTextSettings = useCallback((elementId: string) => {
+      console.log('Open settings for text element:', elementId);
+      // TODO: Implement settings modal/panel
+    }, []);
+
+    // Handle text element height resize
+    const handleTextResizeHeight = useCallback((elementId: string, newHeight: number) => {
+      setCanvasState(prev => ({
+        ...prev,
+        elements: prev.elements.map(element =>
+          element.id === elementId && element.type === 'text'
+            ? { ...element, size: { ...element.size, height: Math.max(20, newHeight) } }
+            : element
+        ),
+      }));
+    }, []);
+
+    // Handle text element width resize
+    const handleTextResizeWidth = useCallback((elementId: string, newWidth: number) => {
+      setCanvasState(prev => ({
+        ...prev,
+        elements: prev.elements.map(element =>
+          element.id === elementId && element.type === 'text'
+            ? { ...element, size: { ...element.size, width: Math.max(50, newWidth) } }
+            : element
+        ),
+      }));
+    }, []);
+
     // Expose methods to parent component
     useImperativeHandle(
       ref,
@@ -584,6 +624,10 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     onSelect={handleElementSelect}
                     onDelete={handleElementDelete}
                     onDuplicate={handleElementDuplicate}
+                    onRotate={handleTextRotate}
+                    onSettings={handleTextSettings}
+                    onResizeHeight={handleTextResizeHeight}
+                    onResizeWidth={handleTextResizeWidth}
                   />
                 );
               } else if (element.type === 'image') {

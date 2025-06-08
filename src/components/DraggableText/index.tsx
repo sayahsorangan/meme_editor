@@ -22,6 +22,10 @@ export interface DraggableTextProps {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
+  onRotate: (id: string, rotation: number) => void;
+  onSettings: (id: string) => void;
+  onResizeHeight: (id: string, height: number) => void;
+  onResizeWidth: (id: string, width: number) => void;
 }
 
 const DraggableText: React.FC<DraggableTextProps> = ({
@@ -33,11 +37,103 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   onSelect,
   onDelete,
   onDuplicate,
+  onRotate,
+  onSettings,
+  onResizeHeight,
+  onResizeWidth,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localText, setLocalText] = useState(element.text);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [isRotating, setIsRotating] = useState(false);
   const dragStartPosition = useRef<Position>({ x: 0, y: 0 });
+  const containerRef = useRef<View>(null);
+  const initialAngle = useRef(0);
+  const containerPosition = useRef<{ x: number; y: number; width: number; height: number }>({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+
+  // Calculate angle between center and touch point
+  const calculateAngle = (
+    centerX: number,
+    centerY: number,
+    touchX: number,
+    touchY: number
+  ): number => {
+    const deltaX = touchX - centerX;
+    const deltaY = touchY - centerY;
+    return Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+  };
+
+  // Rotation PanResponder for the rotate handle
+  const rotationPanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+
+      onPanResponderGrant: (evt: GestureResponderEvent) => {
+        setIsRotating(true);
+        onSelect(element.id);
+
+        // Measure the container to get its position on screen and store it
+        if (containerRef.current) {
+          containerRef.current.measure((x, y, width, height, pageX, pageY) => {
+            containerPosition.current = { x: pageX, y: pageY, width, height };
+
+            // Calculate the center of the element in screen coordinates
+            const centerX = pageX + width / 2;
+            const centerY = pageY + height / 2;
+
+            // Calculate initial angle from center to touch point
+            const touchAngle = calculateAngle(
+              centerX,
+              centerY,
+              evt.nativeEvent.pageX,
+              evt.nativeEvent.pageY
+            );
+
+            // Store the difference between current rotation and touch angle
+            initialAngle.current = element.rotation - touchAngle;
+          });
+        }
+      },
+
+      onPanResponderMove: (evt: GestureResponderEvent) => {
+        // Use stored container position instead of measuring every time
+        const { x: pageX, y: pageY, width, height } = containerPosition.current;
+
+        // Calculate the center of the element in screen coordinates
+        const centerX = pageX + width / 2;
+        const centerY = pageY + height / 2;
+
+        // Calculate current touch angle from center
+        const touchAngle = calculateAngle(
+          centerX,
+          centerY,
+          evt.nativeEvent.pageX,
+          evt.nativeEvent.pageY
+        );
+
+        // Calculate new rotation by adding the initial angle offset
+        let newRotation = initialAngle.current + touchAngle;
+
+        // Normalize to 0-360 degrees
+        newRotation = ((newRotation % 360) + 360) % 360;
+
+        onRotate(element.id, newRotation);
+      },
+
+      onPanResponderRelease: () => {
+        setIsRotating(false);
+      },
+
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
+    })
+  ).current;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -115,6 +211,22 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     onDuplicate(element.id);
   };
 
+  const handleSettings = () => {
+    onSettings(element.id);
+  };
+
+  const handleResizeHeight = () => {
+    // Increase height by 10px (you can adjust this logic)
+    const newHeight = element.size.height + 10;
+    onResizeHeight(element.id, newHeight);
+  };
+
+  const handleResizeWidth = () => {
+    // Increase width by 10px (you can adjust this logic)
+    const newWidth = element.size.width + 10;
+    onResizeWidth(element.id, newWidth);
+  };
+
   const getTextStyle = () => {
     return {
       ...styles.textDisplay,
@@ -131,6 +243,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
   return (
     <View
+      ref={containerRef}
       {...panResponder.panHandlers}
       style={[
         styles.container,
@@ -168,18 +281,45 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       {/* Selection handles */}
       {isSelected && !isEditing && (
         <>
-          {/* Delete button */}
+          {/* Remove button - Top Left */}
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={styles.removeButton}
             onPress={handleDelete}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.deleteIcon}>×</Text>
+            <Text style={styles.buttonIcon}>×</Text>
           </TouchableOpacity>
 
-          {/* Resize handle */}
-          <View style={styles.resizeHandle}>
-            <Text style={styles.resizeIcon}>⤡</Text>
+          {/* Rotate handle - Top Middle (draggable) */}
+          <View
+            {...rotationPanResponder.panHandlers}
+            style={styles.rotateHandle}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.rotateIcon}>↻</Text>
           </View>
+
+          {/* Settings button - Top Right */}
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={handleSettings}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.buttonIcon}>⚙</Text>
+          </TouchableOpacity>
+
+          {/* Resize Height button - Bottom Middle */}
+          <TouchableOpacity
+            style={styles.resizeHeightButton}
+            onPress={handleResizeHeight}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.buttonIcon}>↕</Text>
+          </TouchableOpacity>
+
+          {/* Resize Width button - Right Middle */}
+          <TouchableOpacity
+            style={styles.resizeWidthButton}
+            onPress={handleResizeWidth}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.buttonIcon}>↔</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
