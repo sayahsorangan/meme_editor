@@ -281,7 +281,7 @@ export const styles = StyleSheet.create({
   cloneButton: {
     position: 'absolute',
     bottom: -15,
-    left: -5,
+    right: -15,
     width: DIMENSIONS.ICON_SIZE_MD,
     height: DIMENSIONS.ICON_SIZE_MD,
     backgroundColor: COLORS.SUCCESS,

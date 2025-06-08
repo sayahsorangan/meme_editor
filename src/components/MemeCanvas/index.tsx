@@ -6,7 +6,14 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import { View, Image, Dimensions } from 'react-native';
+import {
+  View,
+  Image,
+  Dimensions,
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
+} from 'react-native';
 import {
   PinchGestureHandler,
   PanGestureHandler,
@@ -38,8 +45,8 @@ import { generateId } from '../../utils/helpers';
 import { DIMENSIONS } from '../../constants/dimensions';
 import { COLORS } from '../../constants/colors';
 import { styles } from './styles';
-import DraggableText from '../DraggableText';
-import DraggableImage from '../DraggableImage';
+import DraggableText from '../DraggableText/DraggableTextWithGestureHandler';
+import DraggableImage from '../DraggableImage/DraggableImageWithGestureHandler';
 
 export interface MemeCanvasProps {
   selectedTemplate: MemeTemplate | null;
@@ -104,11 +111,22 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
 
     // Enhanced pan responder for canvas interaction
     const canvasPanResponder = PanResponder.create({
-      onStartShouldSetPanResponder: _evt => {
+      onStartShouldSetPanResponder: (_evt: GestureResponderEvent) => {
+        // Don't capture if an element is selected
+        if (canvasState.selectedElementId) {
+          return false;
+        }
         // Only capture if there's no element being touched
         return true;
       },
-      onMoveShouldSetPanResponder: (_evt, gestureState) => {
+      onMoveShouldSetPanResponder: (
+        _evt: GestureResponderEvent,
+        gestureState: PanResponderGestureState
+      ) => {
+        // Don't handle movement if an element is selected
+        if (canvasState.selectedElementId) {
+          return false;
+        }
         // Only handle movement if no element is selected and we have some movement
         const isSignificantMovement =
           Math.abs(gestureState.dx) > DIMENSIONS.SPACING_5 ||
@@ -699,8 +717,8 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     element={element as TextElement}
                     isSelected={canvasState.selectedElementId === element.id}
                     canvasSize={canvasState.canvasSize}
+                    canvasScale={canvasState.canvasTransform.scale}
                     onPositionChange={handleElementPositionChange}
-                    onTextChange={handleTextChange}
                     onSelect={handleElementSelect}
                     onDelete={handleElementDelete}
                     onDuplicate={handleElementDuplicate}
@@ -717,6 +735,7 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     element={element as ImageElement}
                     isSelected={canvasState.selectedElementId === element.id}
                     canvasSize={canvasState.canvasSize}
+                    canvasScale={canvasState.canvasTransform.scale}
                     onPositionChange={handleElementPositionChange}
                     onSelect={handleElementSelect}
                     onDelete={handleElementDelete}

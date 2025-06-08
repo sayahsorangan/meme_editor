@@ -113,16 +113,27 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     );
 
     // Pinch gesture handler
-    const onPinchGestureEvent = useCallback((event: PinchGestureHandlerGestureEvent) => {
-      'worklet';
-      if (event.nativeEvent.state === State.ACTIVE) {
-        const newScale = baseScale.value * event.nativeEvent.scale;
-        scale.value = Math.max(0.5, Math.min(3, newScale));
-      }
-    }, []);
+    const onPinchGestureEvent = useCallback(
+      (event: PinchGestureHandlerGestureEvent) => {
+        'worklet';
+        // Don't handle pinch if an element is selected
+        if (canvasState.selectedElementId) {
+          return;
+        }
+        if (event.nativeEvent.state === State.ACTIVE) {
+          const newScale = baseScale.value * event.nativeEvent.scale;
+          scale.value = Math.max(0.5, Math.min(3, newScale));
+        }
+      },
+      [canvasState.selectedElementId]
+    );
 
     const onPinchHandlerStateChange = useCallback(
       (event: PinchGestureHandlerGestureEvent) => {
+        // Don't handle pinch if an element is selected
+        if (canvasState.selectedElementId) {
+          return;
+        }
         if (event.nativeEvent.state === State.BEGAN) {
           baseScale.value = scale.value;
         } else if (event.nativeEvent.state === State.END) {
@@ -130,24 +141,35 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
-      [updateCanvasState]
+      [updateCanvasState, canvasState.selectedElementId]
     );
 
     // Pan gesture handler
-    const onPanGestureEvent = useCallback((event: PanGestureHandlerGestureEvent) => {
-      'worklet';
-      if (event.nativeEvent.state === State.ACTIVE) {
-        const newTranslateX = baseTranslateX.value + event.nativeEvent.translationX;
-        const newTranslateY = baseTranslateY.value + event.nativeEvent.translationY;
+    const onPanGestureEvent = useCallback(
+      (event: PanGestureHandlerGestureEvent) => {
+        'worklet';
+        // Don't handle pan if an element is selected
+        if (canvasState.selectedElementId) {
+          return;
+        }
+        if (event.nativeEvent.state === State.ACTIVE) {
+          const newTranslateX = baseTranslateX.value + event.nativeEvent.translationX;
+          const newTranslateY = baseTranslateY.value + event.nativeEvent.translationY;
 
-        const maxTranslate = 200;
-        translateX.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateX));
-        translateY.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
-      }
-    }, []);
+          const maxTranslate = 200;
+          translateX.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateX));
+          translateY.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
+        }
+      },
+      [canvasState.selectedElementId]
+    );
 
     const onPanHandlerStateChange = useCallback(
       (event: PanGestureHandlerGestureEvent) => {
+        // Don't handle pan if an element is selected
+        if (canvasState.selectedElementId) {
+          return;
+        }
         if (event.nativeEvent.state === State.BEGAN) {
           baseTranslateX.value = translateX.value;
           baseTranslateY.value = translateY.value;
@@ -157,7 +179,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
-      [updateCanvasState]
+      [updateCanvasState, canvasState.selectedElementId]
     );
 
     // Single tap handler
