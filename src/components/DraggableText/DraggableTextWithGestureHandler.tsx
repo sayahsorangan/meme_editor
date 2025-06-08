@@ -16,6 +16,7 @@ export interface DraggableTextProps {
   element: TextElement;
   isSelected: boolean;
   canvasSize: Size;
+  canvasScale: number;
   onPositionChange: (id: string, position: Position) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -30,6 +31,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   element,
   isSelected,
   canvasSize,
+  canvasScale,
   onPositionChange,
   onSelect,
   onDelete,
@@ -39,6 +41,72 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   onResizeHeight,
   onResizeWidth,
 }) => {
+  // Calculate inverse scale for consistent button sizing
+  const inverseScale = 1 / canvasScale;
+  const scaledIconSize = DIMENSIONS.ICON_SIZE_MD * inverseScale;
+  const scaledFontSize = 12 * inverseScale;
+  const scaledOffset = 15 * inverseScale;
+
+  // Dynamic button styles that maintain consistent size regardless of canvas scale
+  const buttonStyles = {
+    removeButton: {
+      ...styles.removeButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      left: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    settingsButton: {
+      ...styles.settingsButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      right: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    rotateHandle: {
+      ...styles.rotateHandle,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      marginLeft: -scaledIconSize / 2,
+      borderRadius: scaledIconSize / 2,
+    },
+    cloneButton: {
+      ...styles.cloneButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      bottom: -scaledOffset,
+      right: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    resizeHeightButton: {
+      ...styles.resizeHeightButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      bottom: -scaledOffset,
+      marginLeft: -scaledIconSize / 2,
+      borderRadius: scaledIconSize / 2,
+    },
+    resizeWidthButton: {
+      ...styles.resizeWidthButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      right: -scaledOffset,
+      marginTop: -scaledIconSize / 2,
+      borderRadius: scaledIconSize / 2,
+    },
+    buttonIcon: {
+      ...styles.buttonIcon,
+      fontSize: scaledFontSize,
+    },
+    rotateIcon: {
+      ...styles.rotateIcon,
+      fontSize: scaledFontSize,
+    },
+  };
+
   const [, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
   const [isResizingHeight, setIsResizingHeight] = useState(false);
@@ -311,53 +379,51 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         <>
           {/* Remove button - Top Left */}
           <TouchableOpacity
-            style={styles.removeButton}
+            style={buttonStyles.removeButton}
             onPress={handleDelete}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.buttonIcon}>×</Text>
+            <Text style={buttonStyles.buttonIcon}>×</Text>
           </TouchableOpacity>
 
           {/* Rotate handle - Top Middle (draggable) */}
           <View
             {...rotationPanResponder.panHandlers}
-            style={styles.rotateHandle}
+            style={buttonStyles.rotateHandle}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.rotateIcon}>↻</Text>
+            <Text style={buttonStyles.rotateIcon}>↻</Text>
           </View>
 
           {/* Settings button - Top Right */}
           <TouchableOpacity
-            style={styles.settingsButton}
+            style={buttonStyles.settingsButton}
             onPress={handleSettings}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.buttonIcon}>⚙</Text>
+            <Text style={buttonStyles.buttonIcon}>⚙</Text>
           </TouchableOpacity>
 
           {/* Resize Height button - Bottom Middle (draggable) */}
           <View
             {...heightResizePanResponder.panHandlers}
-            style={styles.resizeHeightButton}
+            style={buttonStyles.resizeHeightButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.buttonIcon}>↕</Text>
+            <Text style={buttonStyles.buttonIcon}>↕</Text>
           </View>
 
           {/* Resize Width button - Right Middle (draggable) */}
           <View
             {...widthResizePanResponder.panHandlers}
-            style={styles.resizeWidthButton}
+            style={buttonStyles.resizeWidthButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Text style={styles.buttonIcon}>↔</Text>
+            <Text style={buttonStyles.buttonIcon}>↔</Text>
           </View>
 
           {/* Clone button - Bottom Left */}
-          {onDuplicate && (
-            <TouchableOpacity
-              style={styles.cloneButton}
-              onPress={handleClone}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Text style={styles.cloneIcon}>C</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={buttonStyles.cloneButton}
+            onPress={handleClone}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={buttonStyles.buttonIcon}>C</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>

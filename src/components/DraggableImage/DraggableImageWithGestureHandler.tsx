@@ -17,6 +17,7 @@ export interface DraggableImageProps {
   element: ImageElement;
   isSelected: boolean;
   canvasSize: Size;
+  canvasScale: number;
   onPositionChange: (id: string, position: Position) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
@@ -30,6 +31,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   element,
   isSelected,
   canvasSize,
+  canvasScale,
   onPositionChange,
   onSelect,
   onDelete,
@@ -38,6 +40,76 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   onSizeChange,
   onSettings,
 }) => {
+  // Calculate inverse scale for consistent button sizing
+  const inverseScale = 1 / canvasScale;
+  const scaledIconSize = DIMENSIONS.ICON_SIZE_MD * inverseScale;
+  const scaledFontSize = 12 * inverseScale;
+  const scaledOffset = 15 * inverseScale;
+
+  // Dynamic button styles that maintain consistent size regardless of canvas scale
+  const buttonStyles = {
+    deleteButton: {
+      ...styles.deleteButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      left: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    settingsButton: {
+      ...styles.settingsButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      right: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    cloneButton: {
+      ...styles.cloneButton,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      bottom: -scaledOffset,
+      right: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    rotateHandle: {
+      ...styles.rotateHandle,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      top: -scaledOffset,
+      marginLeft: -scaledIconSize / 2,
+      borderRadius: scaledIconSize / 2,
+    },
+    resizeHandle: {
+      ...styles.resizeHandle,
+      width: scaledIconSize,
+      height: scaledIconSize,
+      bottom: -scaledOffset,
+      right: -scaledOffset,
+      borderRadius: scaledIconSize / 2,
+    },
+    deleteIcon: {
+      ...styles.deleteIcon,
+      fontSize: scaledFontSize,
+    },
+    settingsIcon: {
+      ...styles.settingsIcon,
+      fontSize: scaledFontSize,
+    },
+    cloneIcon: {
+      ...styles.cloneIcon,
+      fontSize: scaledFontSize,
+    },
+    rotateIcon: {
+      ...styles.rotateIcon,
+      fontSize: scaledFontSize,
+    },
+    resizeIcon: {
+      ...styles.resizeIcon,
+      fontSize: scaledFontSize,
+    },
+  };
+
   const [, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -320,7 +392,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
         <>
           {/* Delete button */}
           <TouchableOpacity
-            style={styles.deleteButton}
+            style={buttonStyles.deleteButton}
             onPress={handleDelete}
             hitSlop={{
               top: DIMENSIONS.SNAP_THRESHOLD,
@@ -328,21 +400,21 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
               left: DIMENSIONS.SNAP_THRESHOLD,
               right: DIMENSIONS.SNAP_THRESHOLD,
             }}>
-            <Text style={styles.deleteIcon}>×</Text>
+            <Text style={buttonStyles.deleteIcon}>×</Text>
           </TouchableOpacity>
 
           {/* Rotate handle */}
           {onRotate && (
             <View
               {...rotationPanResponder.panHandlers}
-              style={styles.rotateHandle}
+              style={buttonStyles.rotateHandle}
               hitSlop={{
                 top: DIMENSIONS.SNAP_THRESHOLD,
                 bottom: DIMENSIONS.SNAP_THRESHOLD,
                 left: DIMENSIONS.SNAP_THRESHOLD,
                 right: DIMENSIONS.SNAP_THRESHOLD,
               }}>
-              <Text style={styles.rotateIcon}>↻</Text>
+              <Text style={buttonStyles.rotateIcon}>↻</Text>
             </View>
           )}
 
@@ -350,21 +422,21 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
           {onSizeChange && (
             <View
               {...resizePanResponder.panHandlers}
-              style={styles.resizeHandle}
+              style={buttonStyles.resizeHandle}
               hitSlop={{
                 top: DIMENSIONS.SNAP_THRESHOLD,
                 bottom: DIMENSIONS.SNAP_THRESHOLD,
                 left: DIMENSIONS.SNAP_THRESHOLD,
                 right: DIMENSIONS.SNAP_THRESHOLD,
               }}>
-              <Text style={styles.resizeIcon}>⤡</Text>
+              <Text style={buttonStyles.resizeIcon}>⤡</Text>
             </View>
           )}
 
           {/* Settings button */}
           {onSettings && (
             <TouchableOpacity
-              style={styles.settingsButton}
+              style={buttonStyles.settingsButton}
               onPress={handleSettings}
               hitSlop={{
                 top: DIMENSIONS.SNAP_THRESHOLD,
@@ -372,24 +444,22 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
                 left: DIMENSIONS.SNAP_THRESHOLD,
                 right: DIMENSIONS.SNAP_THRESHOLD,
               }}>
-              <Text style={styles.settingsIcon}>⚙</Text>
+              <Text style={buttonStyles.settingsIcon}>⚙</Text>
             </TouchableOpacity>
           )}
 
           {/* Clone button */}
-          {onDuplicate && (
-            <TouchableOpacity
-              style={styles.cloneButton}
-              onPress={handleClone}
-              hitSlop={{
-                top: DIMENSIONS.SNAP_THRESHOLD,
-                bottom: DIMENSIONS.SNAP_THRESHOLD,
-                left: DIMENSIONS.SNAP_THRESHOLD,
-                right: DIMENSIONS.SNAP_THRESHOLD,
-              }}>
-              <Text style={styles.cloneIcon}>C</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={buttonStyles.cloneButton}
+            onPress={handleClone}
+            hitSlop={{
+              top: DIMENSIONS.SNAP_THRESHOLD,
+              bottom: DIMENSIONS.SNAP_THRESHOLD,
+              left: DIMENSIONS.SNAP_THRESHOLD,
+              right: DIMENSIONS.SNAP_THRESHOLD,
+            }}>
+            <Text style={buttonStyles.cloneIcon}>C</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>

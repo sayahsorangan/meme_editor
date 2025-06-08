@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.BORDER_RADIUS_SM,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 4, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 4, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -90,7 +90,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 4, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 4, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -133,7 +133,7 @@ export const styles = StyleSheet.create({
     left: -2,
     right: -2,
     bottom: -2,
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.PRIMARY,
     borderStyle: 'dashed',
     pointerEvents: 'none',

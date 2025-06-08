@@ -75,7 +75,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -107,7 +107,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -151,7 +151,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -171,7 +171,7 @@ export const styles = StyleSheet.create({
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow
@@ -201,7 +201,7 @@ export const styles = StyleSheet.create({
     left: -2,
     right: -2,
     bottom: -2,
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.PRIMARY,
     borderStyle: 'dashed',
     pointerEvents: 'none',
@@ -281,14 +281,14 @@ export const styles = StyleSheet.create({
   cloneButton: {
     position: 'absolute',
     bottom: -15,
-    left: -15,
+    left: -5,
     width: DIMENSIONS.ICON_SIZE_MD,
     height: DIMENSIONS.ICON_SIZE_MD,
     backgroundColor: COLORS.SUCCESS,
     borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0,
     borderColor: COLORS.WHITE,
     elevation: 6, // Android shadow
     shadowColor: COLORS.BLACK, // iOS shadow

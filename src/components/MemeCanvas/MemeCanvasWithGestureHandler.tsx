@@ -507,6 +507,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     element={element as TextElement}
                     isSelected={canvasState.selectedElementId === element.id}
                     canvasSize={canvasState.canvasSize}
+                    canvasScale={canvasState.canvasTransform.scale}
                     onPositionChange={handleElementPositionChange}
                     onSelect={handleElementSelect}
                     onDelete={handleElementDelete}
@@ -555,6 +556,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     element={element as ImageElement}
                     isSelected={canvasState.selectedElementId === element.id}
                     canvasSize={canvasState.canvasSize}
+                    canvasScale={canvasState.canvasTransform.scale}
                     onPositionChange={handleElementPositionChange}
                     onSelect={handleElementSelect}
                     onDelete={handleElementDelete}
