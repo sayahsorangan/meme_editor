@@ -22,14 +22,7 @@ import Animated, {
   runOnJS,
   withSpring,
 } from 'react-native-reanimated';
-import {
-  MemeTemplate,
-  TextElement,
-  ImageElement,
-  Position,
-  Size,
-  CanvasState,
-} from '../../types';
+import { MemeTemplate, TextElement, ImageElement, Position, Size, CanvasState } from '../../types';
 import { generateId } from '../../utils/helpers';
 import { DIMENSIONS } from '../../constants/dimensions';
 import { COLORS } from '../../constants/colors';
@@ -171,14 +164,8 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           const newTranslateY = baseTranslateY.value + event.nativeEvent.translationY;
 
           const maxTranslate = 200;
-          translateX.value = Math.max(
-            -maxTranslate,
-            Math.min(maxTranslate, newTranslateX),
-          );
-          translateY.value = Math.max(
-            -maxTranslate,
-            Math.min(maxTranslate, newTranslateY),
-          );
+          translateX.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateX));
+          translateY.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
         }
       },
       [
@@ -202,11 +189,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         } else if (event.nativeEvent.state === State.END) {
           baseTranslateX.value = translateX.value;
           baseTranslateY.value = translateY.value;
-          runOnJS(updateCanvasState)(
-            scale.value,
-            translateX.value,
-            translateY.value,
-          );
+          runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
       [
@@ -304,7 +287,9 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     // Add new image element
     const handleAddImage = useCallback(
       (imageUri?: string) => {
-        if (!imageUri) {return;}
+        if (!imageUri) {
+          return;
+        }
 
         Image.getSize(
           imageUri,
@@ -419,7 +404,9 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     const handleElementDuplicate = useCallback(
       (elementId: string) => {
         const elementToDuplicate = canvasState.elements.find(el => el.id === elementId);
-        if (!elementToDuplicate) {return;}
+        if (!elementToDuplicate) {
+          return;
+        }
 
         const duplicatedElement = {
           ...elementToDuplicate,
@@ -514,7 +501,9 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
 
     // Render canvas content
     const renderCanvasContent = () => {
-      if (!selectedTemplate) {return null;}
+      if (!selectedTemplate) {
+        return null;
+      }
 
       return (
         <>
@@ -685,9 +674,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     },
                     animatedStyle,
                   ]}>
-                  <View style={[styles.canvas, canvasStyles]}>
-                    {renderCanvasContent()}
-                  </View>
+                  <View style={[styles.canvas, canvasStyles]}>{renderCanvasContent()}</View>
                 </Animated.View>
               </PinchGestureHandler>
             </PanGestureHandler>
