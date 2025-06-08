@@ -21,7 +21,7 @@ export const generateId = (): string => {
 export const calculateSnapPosition = (
   position: Position,
   canvasSize: Size,
-  elementSize: Size
+  elementSize: Size,
 ): Position => {
   const { SNAP_THRESHOLD } = DIMENSIONS;
 
@@ -87,7 +87,7 @@ export const calculateDistance = (point1: Position, point2: Position): number =>
 export const isPointInRectangle = (
   point: Position,
   rectPosition: Position,
-  rectSize: Size
+  rectSize: Size,
 ): boolean => {
   return (
     point.x >= rectPosition.x &&
@@ -119,7 +119,7 @@ export const hexToRgba = (hex: string, alpha: number = 1): string => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeout: NodeJS.Timeout;
 

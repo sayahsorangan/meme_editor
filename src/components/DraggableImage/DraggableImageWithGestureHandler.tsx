@@ -130,7 +130,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
     centerX: number,
     centerY: number,
     touchX: number,
-    touchY: number
+    touchY: number,
   ): number => {
     const deltaX = touchX - centerX;
     const deltaY = touchY - centerY;
@@ -161,7 +161,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
               centerX,
               centerY,
               evt.nativeEvent.pageX,
-              evt.nativeEvent.pageY
+              evt.nativeEvent.pageY,
             );
 
             // Store the difference between current rotation and touch angle
@@ -187,7 +187,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
           centerX,
           centerY,
           evt.nativeEvent.pageX,
-          evt.nativeEvent.pageY
+          evt.nativeEvent.pageY,
         );
 
         // Calculate new rotation by adding the initial angle offset
@@ -206,7 +206,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   // Resize PanResponder for the resize handle
@@ -274,7 +274,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   const panResponder = useRef(
@@ -333,7 +333,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
       // High priority to capture gestures over parent canvas
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    })
+    }),
   ).current;
 
   const handleDelete = () => {

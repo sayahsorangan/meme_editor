@@ -27,7 +27,7 @@ export const requestCameraRollPermissions = async (): Promise<boolean> => {
           buttonNeutral: 'Ask Me Later',
           buttonNegative: 'Cancel',
           buttonPositive: 'OK',
-        }
+        },
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (err) {
@@ -43,7 +43,7 @@ export const requestCameraRollPermissions = async (): Promise<boolean> => {
  */
 export const saveImageToCameraRoll = async (
   imageUri: string,
-  options?: SaveImageOptions
+  options?: SaveImageOptions,
 ): Promise<boolean> => {
   try {
     const hasPermission = await requestCameraRollPermissions();
@@ -91,7 +91,7 @@ export const getPhotosFromCameraRoll = async (options: GetPhotosOptions) => {
  * Save a meme to camera roll with proper error handling
  */
 export const saveMemeToGallery = async (
-  memeUri: string
+  memeUri: string,
 ): Promise<{
   success: boolean;
   message: string;

@@ -1,6 +1,4 @@
-import React, {
-  useRef,
-  useState,
+import React, {import { View, Image, Dimensions, PanResponder, GestureResponderEvent, PanResponderGestureState } from 'react-native';te,
   useCallback,
   useEffect,
   forwardRef,

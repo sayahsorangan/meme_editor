@@ -109,7 +109,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           },
         }));
       },
-      []
+      [],
     );
 
     // Pinch gesture handler
@@ -125,7 +125,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           scale.value = Math.max(0.5, Math.min(3, newScale));
         }
       },
-      [canvasState.selectedElementId]
+      [canvasState.selectedElementId],
     );
 
     const onPinchHandlerStateChange = useCallback(
@@ -141,7 +141,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
-      [updateCanvasState, canvasState.selectedElementId]
+      [updateCanvasState, canvasState.selectedElementId],
     );
 
     // Pan gesture handler
@@ -161,7 +161,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           translateY.value = Math.max(-maxTranslate, Math.min(maxTranslate, newTranslateY));
         }
       },
-      [canvasState.selectedElementId]
+      [canvasState.selectedElementId],
     );
 
     const onPanHandlerStateChange = useCallback(
@@ -179,7 +179,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(scale.value, translateX.value, translateY.value);
         }
       },
-      [updateCanvasState, canvasState.selectedElementId]
+      [updateCanvasState, canvasState.selectedElementId],
     );
 
     // Single tap handler
@@ -208,7 +208,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           runOnJS(updateCanvasState)(1, 0, 0);
         }
       },
-      [updateCanvasState]
+      [updateCanvasState],
     );
 
     // Animated style for canvas container
@@ -266,7 +266,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     // Add new image element
     const handleAddImage = useCallback(
       (imageUri?: string) => {
-        if (!imageUri) return;
+        if (!imageUri) {return;}
 
         Image.getSize(
           imageUri,
@@ -346,10 +346,10 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
               elements: [...prev.elements, newImageElement],
               selectedElementId: newImageElement.id,
             }));
-          }
+          },
         );
       },
-      [canvasState.canvasSize, canvasState.elements.length]
+      [canvasState.canvasSize, canvasState.elements.length],
     );
 
     // Element handlers
@@ -357,7 +357,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       setCanvasState(prev => ({
         ...prev,
         elements: prev.elements.map(element =>
-          element.id === elementId ? { ...element, position: newPosition } : element
+          element.id === elementId ? { ...element, position: newPosition } : element,
         ),
       }));
     }, []);
@@ -380,7 +380,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     const handleElementDuplicate = useCallback(
       (elementId: string) => {
         const elementToDuplicate = canvasState.elements.find(el => el.id === elementId);
-        if (!elementToDuplicate) return;
+        if (!elementToDuplicate) {return;}
 
         const duplicatedElement = {
           ...elementToDuplicate,
@@ -398,14 +398,14 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           selectedElementId: duplicatedElement.id,
         }));
       },
-      [canvasState.elements]
+      [canvasState.elements],
     );
 
     const handleElementRotate = useCallback((elementId: string, rotation: number) => {
       setCanvasState(prev => ({
         ...prev,
         elements: prev.elements.map(element =>
-          element.id === elementId ? { ...element, rotation } : element
+          element.id === elementId ? { ...element, rotation } : element,
         ),
       }));
     }, []);
@@ -414,7 +414,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       setCanvasState(prev => ({
         ...prev,
         elements: prev.elements.map(element =>
-          element.id === elementId ? { ...element, size: newSize } : element
+          element.id === elementId ? { ...element, size: newSize } : element,
         ),
       }));
     }, []);
@@ -426,11 +426,11 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           elements: prev.elements.map(element =>
             element.id === elementId && element.type === 'text'
               ? { ...element, ...updates }
-              : element
+              : element,
           ),
         }));
       },
-      []
+      [],
     );
 
     const handleUpdateImageElement = useCallback(
@@ -440,11 +440,11 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
           elements: prev.elements.map(element =>
             element.id === elementId && element.type === 'image'
               ? { ...element, ...updates }
-              : element
+              : element,
           ),
         }));
       },
-      []
+      [],
     );
 
     // Expose methods to parent component
@@ -456,7 +456,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         updateTextElement: handleUpdateTextElement,
         updateImageElement: handleUpdateImageElement,
       }),
-      [handleAddText, handleAddImage, handleUpdateTextElement, handleUpdateImageElement]
+      [handleAddText, handleAddImage, handleUpdateTextElement, handleUpdateImageElement],
     );
 
     // Render snap lines
@@ -475,7 +475,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
 
     // Render canvas content
     const renderCanvasContent = () => {
-      if (!selectedTemplate) return null;
+      if (!selectedTemplate) {return null;}
 
       return (
         <>
@@ -537,7 +537,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     onRotate={handleElementRotate}
                     onSettings={(id: string) => {
                       const textElement = canvasState.elements.find(
-                        el => el.id === id && el.type === 'text'
+                        el => el.id === id && el.type === 'text',
                       ) as TextElement;
                       if (textElement && onTextElementSettings) {
                         onTextElementSettings(textElement);
@@ -552,7 +552,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                                 ...element,
                                 size: { ...element.size, height: Math.max(20, height) },
                               }
-                            : element
+                            : element,
                         ),
                       }));
                     }}
@@ -565,7 +565,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                                 ...element,
                                 size: { ...element.size, width: Math.max(50, width) },
                               }
-                            : element
+                            : element,
                         ),
                       }));
                     }}
@@ -653,7 +653,7 @@ const MemeCanvasWithGestureHandler = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         </TapGestureHandler>
       </View>
     );
-  }
+  },
 );
 
 MemeCanvasWithGestureHandler.displayName = 'MemeCanvasWithGestureHandler';
