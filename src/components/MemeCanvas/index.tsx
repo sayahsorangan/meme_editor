@@ -27,15 +27,17 @@ export interface MemeCanvasProps {
   selectedTemplate: MemeTemplate | null;
   onAddText: () => void;
   onAddImage: () => void;
+  onTextElementSettings?: (element: TextElement) => void;
 }
 
 export interface MemeCanvasRef {
   addTextElement: () => void;
   addImageElement: (imageUri?: string) => void;
+  updateTextElement: (elementId: string, updates: Partial<TextElement>) => void;
 }
 
 const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
-  ({ selectedTemplate, onAddText, onAddImage }, ref) => {
+  ({ selectedTemplate, onAddText, onAddImage, onTextElementSettings }, ref) => {
     // Initialize canvas with square dimensions when no template is selected
     const getInitialCanvasSize = () => {
       const screenWidth = Dimensions.get('window').width - DIMENSIONS.SPACING_LG * 2;
@@ -491,10 +493,17 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
     }, []);
 
     // Handle text element settings (placeholder for now)
-    const handleTextSettings = useCallback((elementId: string) => {
-      console.log('Open settings for text element:', elementId);
-      // TODO: Implement settings modal/panel
-    }, []);
+    const handleTextSettings = useCallback(
+      (elementId: string) => {
+        const element = canvasState.elements.find(
+          el => el.id === elementId && el.type === 'text'
+        ) as TextElement;
+        if (element && onTextElementSettings) {
+          onTextElementSettings(element);
+        }
+      },
+      [canvasState.elements, onTextElementSettings]
+    );
 
     // Handle text element height resize
     const handleTextResizeHeight = useCallback((elementId: string, newHeight: number) => {
@@ -520,14 +529,30 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       }));
     }, []);
 
+    // Handle text element update
+    const handleUpdateTextElement = useCallback(
+      (elementId: string, updates: Partial<TextElement>) => {
+        setCanvasState(prev => ({
+          ...prev,
+          elements: prev.elements.map(element =>
+            element.id === elementId && element.type === 'text'
+              ? { ...element, ...updates }
+              : element
+          ),
+        }));
+      },
+      []
+    );
+
     // Expose methods to parent component
     useImperativeHandle(
       ref,
       () => ({
         addTextElement: handleAddText,
         addImageElement: handleAddImage,
+        updateTextElement: handleUpdateTextElement,
       }),
-      [handleAddText, handleAddImage]
+      [handleAddText, handleAddImage, handleUpdateTextElement]
     );
 
     // Render snap lines
