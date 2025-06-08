@@ -1,8 +1,7 @@
-import React, { useRef, useState, useEffect, memo } from 'react';
+import React, { useRef, useState, memo } from 'react';
 import {
   View,
   Text,
-  TextInput,
   PanResponder,
   TouchableOpacity,
   GestureResponderEvent,
@@ -18,7 +17,6 @@ export interface DraggableTextProps {
   isSelected: boolean;
   canvasSize: Size;
   onPositionChange: (id: string, position: Position) => void;
-  onTextChange: (id: string, text: string) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate?: (id: string) => void;
@@ -33,17 +31,14 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   isSelected,
   canvasSize,
   onPositionChange,
-  onTextChange,
   onSelect,
   onDelete,
-  onDuplicate: _onDuplicate,
+  onDuplicate,
   onRotate,
   onSettings,
   onResizeHeight,
   onResizeWidth,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [localText, setLocalText] = useState(element.text);
   const [, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
   const [isResizingHeight, setIsResizingHeight] = useState(false);
@@ -214,11 +209,11 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         if (isResizingHeight || isResizingWidth || isRotating) {
           return false;
         }
-        // Only start dragging if we're not editing and movement is significant
+        // Only start dragging if movement is significant
         const isSignificantMovement =
           Math.abs(gestureState.dx) > DIMENSIONS.SPACING_3 ||
           Math.abs(gestureState.dy) > DIMENSIONS.SPACING_3;
-        return !isEditing && isSignificantMovement;
+        return isSignificantMovement;
       },
 
       onPanResponderGrant: (evt: GestureResponderEvent) => {
@@ -235,10 +230,6 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       },
 
       onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        if (isEditing) {
-          return;
-        }
-
         // Calculate new position based on the initial position plus gesture movement
         const newPosition = {
           x: dragStartPosition.current.x + gestureState.dx,
@@ -262,28 +253,18 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     })
   ).current;
 
-  // Update local text when element text changes externally
-  useEffect(() => {
-    setLocalText(element.text);
-  }, [element.text]);
-
-  const handleTextSubmit = () => {
-    setIsEditing(false);
-    onTextChange(element.id, localText);
-  };
-
-  const handleDoublePress = () => {
-    if (isSelected) {
-      setIsEditing(true);
-    }
-  };
-
   const handleDelete = () => {
     onDelete(element.id);
   };
 
   const handleSettings = () => {
     onSettings(element.id);
+  };
+
+  const handleClone = () => {
+    if (onDuplicate) {
+      onDuplicate(element.id);
+    }
   };
 
   const getTextStyle = () => {
@@ -322,29 +303,12 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         },
         isSelected && styles.selected,
       ]}>
-      {isEditing ? (
-        <TextInput
-          style={[styles.textInput, getTextStyle()]}
-          value={localText}
-          onChangeText={setLocalText}
-          onSubmitEditing={handleTextSubmit}
-          onBlur={handleTextSubmit}
-          multiline
-          autoFocus
-          selectTextOnFocus
-        />
-      ) : (
-        <Text
-          style={getTextStyle()}
-          onPress={() => onSelect(element.id)}
-          // Double tap to edit (simplified implementation)
-          onLongPress={handleDoublePress}>
-          {element.text || 'Double tap to edit'}
-        </Text>
-      )}
+      <Text style={getTextStyle()} onPress={() => onSelect(element.id)}>
+        {element.text || 'Tap to select'}
+      </Text>
 
       {/* Selection handles */}
-      {isSelected && !isEditing && (
+      {isSelected && (
         <>
           {/* Remove button - Top Left */}
           <TouchableOpacity
@@ -385,6 +349,16 @@ const DraggableText: React.FC<DraggableTextProps> = ({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.buttonIcon}>↔</Text>
           </View>
+
+          {/* Clone button - Bottom Left */}
+          {onDuplicate && (
+            <TouchableOpacity
+              style={styles.cloneButton}
+              onPress={handleClone}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Text style={styles.cloneIcon}>C</Text>
+            </TouchableOpacity>
+          )}
         </>
       )}
     </View>

@@ -151,4 +151,27 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  cloneButton: {
+    position: 'absolute',
+    bottom: -DIMENSIONS.SPACING_SM,
+    left: -DIMENSIONS.SPACING_SM,
+    width: DIMENSIONS.ICON_SIZE_MD,
+    height: DIMENSIONS.ICON_SIZE_MD,
+    backgroundColor: COLORS.SUCCESS,
+    borderRadius: DIMENSIONS.ICON_SIZE_MD / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.WHITE,
+    elevation: 4, // Android shadow
+    shadowColor: COLORS.BLACK, // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  cloneIcon: {
+    color: COLORS.WHITE,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
 });

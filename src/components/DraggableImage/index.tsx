@@ -33,7 +33,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   onPositionChange,
   onSelect,
   onDelete,
-  onDuplicate: _onDuplicate,
+  onDuplicate,
   onRotate,
   onSizeChange,
   onSettings,
@@ -274,6 +274,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
     }
   };
 
+  const handleClone = () => {
+    if (onDuplicate) {
+      onDuplicate(element.id);
+    }
+  };
+
   const getImageStyle = () => {
     return {
       ...styles.image,
@@ -367,6 +373,21 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
                 right: DIMENSIONS.SNAP_THRESHOLD,
               }}>
               <Text style={styles.settingsIcon}>⚙</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Clone button */}
+          {onDuplicate && (
+            <TouchableOpacity
+              style={styles.cloneButton}
+              onPress={handleClone}
+              hitSlop={{
+                top: DIMENSIONS.SNAP_THRESHOLD,
+                bottom: DIMENSIONS.SNAP_THRESHOLD,
+                left: DIMENSIONS.SNAP_THRESHOLD,
+                right: DIMENSIONS.SNAP_THRESHOLD,
+              }}>
+              <Text style={styles.cloneIcon}>C</Text>
             </TouchableOpacity>
           )}
         </>
