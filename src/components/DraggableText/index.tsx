@@ -46,9 +46,12 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   const [localText, setLocalText] = useState(element.text);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
+  const [isResizingHeight, setIsResizingHeight] = useState(false);
+  const [isResizingWidth, setIsResizingWidth] = useState(false);
   const dragStartPosition = useRef<Position>({ x: 0, y: 0 });
   const containerRef = useRef<View>(null);
   const initialAngle = useRef(0);
+  const initialSize = useRef<Size>({ width: 0, height: 0 });
   const containerPosition = useRef<{ x: number; y: number; width: number; height: number }>({
     x: 0,
     y: 0,
@@ -135,13 +138,71 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     })
   ).current;
 
+  // Height resize PanResponder
+  const heightResizePanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+
+      onPanResponderGrant: () => {
+        setIsResizingHeight(true);
+        onSelect(element.id);
+        initialSize.current = { ...element.size };
+      },
+
+      onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        // Calculate new height based on vertical movement
+        const newHeight = Math.max(30, initialSize.current.height + gestureState.dy);
+        onResizeHeight(element.id, newHeight);
+      },
+
+      onPanResponderRelease: () => {
+        setIsResizingHeight(false);
+      },
+
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
+    })
+  ).current;
+
+  // Width resize PanResponder
+  const widthResizePanResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+
+      onPanResponderGrant: () => {
+        setIsResizingWidth(true);
+        onSelect(element.id);
+        initialSize.current = { ...element.size };
+      },
+
+      onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        // Calculate new width based on horizontal movement
+        const newWidth = Math.max(50, initialSize.current.width + gestureState.dx);
+        onResizeWidth(element.id, newWidth);
+      },
+
+      onPanResponderRelease: () => {
+        setIsResizingWidth(false);
+      },
+
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
+    })
+  ).current;
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: evt => {
+        // Don't capture if we're currently resizing or rotating
+        if (isResizingHeight || isResizingWidth || isRotating) return false;
         // Always try to capture touch events on text elements
         return true;
       },
       onMoveShouldSetPanResponder: (evt, gestureState) => {
+        // Don't drag if we're currently resizing or rotating
+        if (isResizingHeight || isResizingWidth || isRotating) return false;
         // Only start dragging if we're not editing and movement is significant
         const isSignificantMovement =
           Math.abs(gestureState.dx) > 3 || Math.abs(gestureState.dy) > 3;
@@ -213,18 +274,6 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
   const handleSettings = () => {
     onSettings(element.id);
-  };
-
-  const handleResizeHeight = () => {
-    // Increase height by 10px (you can adjust this logic)
-    const newHeight = element.size.height + 10;
-    onResizeHeight(element.id, newHeight);
-  };
-
-  const handleResizeWidth = () => {
-    // Increase width by 10px (you can adjust this logic)
-    const newWidth = element.size.width + 10;
-    onResizeWidth(element.id, newWidth);
   };
 
   const getTextStyle = () => {
@@ -305,21 +354,21 @@ const DraggableText: React.FC<DraggableTextProps> = ({
             <Text style={styles.buttonIcon}>⚙</Text>
           </TouchableOpacity>
 
-          {/* Resize Height button - Bottom Middle */}
-          <TouchableOpacity
+          {/* Resize Height button - Bottom Middle (draggable) */}
+          <View
+            {...heightResizePanResponder.panHandlers}
             style={styles.resizeHeightButton}
-            onPress={handleResizeHeight}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.buttonIcon}>↕</Text>
-          </TouchableOpacity>
+          </View>
 
-          {/* Resize Width button - Right Middle */}
-          <TouchableOpacity
+          {/* Resize Width button - Right Middle (draggable) */}
+          <View
+            {...widthResizePanResponder.panHandlers}
             style={styles.resizeWidthButton}
-            onPress={handleResizeWidth}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.buttonIcon}>↔</Text>
-          </TouchableOpacity>
+          </View>
         </>
       )}
     </View>
