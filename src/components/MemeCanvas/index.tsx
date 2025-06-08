@@ -282,9 +282,9 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         zIndex: canvasState.elements.length + 1,
         style: {
           fontSize: DIMENSIONS.DEFAULT_TEXT_SIZE,
-          fontFamily: 'System',
+          fontFamily: undefined, // Use system default
           color: COLORS.BLACK,
-          fontWeight: '600',
+          fontWeight: 'bold',
           textAlign: 'center',
           backgroundColor: 'transparent',
         },

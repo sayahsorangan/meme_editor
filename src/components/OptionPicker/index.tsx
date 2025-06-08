@@ -4,13 +4,13 @@ import { baseStylePanelStyles } from '../../styles/baseStylePanel';
 
 interface Option {
   label: string;
-  value: string;
+  value: string | undefined;
 }
 
 interface OptionPickerProps {
   options: Option[];
-  selectedValue?: string;
-  onValueChange: (value: string) => void;
+  selectedValue?: string | undefined;
+  onValueChange: (value: string | undefined) => void;
   renderOptionText?: (option: Option) => React.ReactNode;
 }
 
@@ -24,7 +24,7 @@ const OptionPicker: React.FC<OptionPickerProps> = ({
     <View style={baseStylePanelStyles.optionPicker}>
       {options.map(option => (
         <TouchableOpacity
-          key={option.value}
+          key={option.value || 'default'}
           style={[
             baseStylePanelStyles.option,
             selectedValue === option.value && baseStylePanelStyles.selectedOption,

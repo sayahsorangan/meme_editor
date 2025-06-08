@@ -41,8 +41,12 @@ const MemeGeneratorScreen: React.FC = () => {
   // Local state for text style editing
   const [editingText, setEditingText] = useState('');
   const [editingFontSize, setEditingFontSize] = useState(20);
-  const [editingFontFamily, setEditingFontFamily] = useState('System');
+  const [editingFontFamily, setEditingFontFamily] = useState<string | undefined>(undefined);
   const [editingColor, setEditingColor] = useState('#000000');
+  const [editingFontWeight, setEditingFontWeight] = useState<
+    'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900'
+  >('normal');
+  const [editingTextAlign, setEditingTextAlign] = useState<'left' | 'center' | 'right'>('center');
 
   const memeCanvasRef = useRef<MemeCanvasRef>(null);
 
@@ -221,6 +225,8 @@ const MemeGeneratorScreen: React.FC = () => {
     setEditingFontSize(element.style.fontSize);
     setEditingFontFamily(element.style.fontFamily);
     setEditingColor(element.style.color);
+    setEditingFontWeight(element.style.fontWeight);
+    setEditingTextAlign(element.style.textAlign);
     setShowTextStyleModal(true);
   }, []);
 
@@ -240,6 +246,8 @@ const MemeGeneratorScreen: React.FC = () => {
           fontSize: editingFontSize,
           fontFamily: editingFontFamily,
           color: editingColor,
+          fontWeight: editingFontWeight,
+          textAlign: editingTextAlign,
         },
       };
 
@@ -247,7 +255,15 @@ const MemeGeneratorScreen: React.FC = () => {
       setShowTextStyleModal(false);
       setEditingTextElement(null);
     }
-  }, [editingTextElement, editingText, editingFontSize, editingFontFamily, editingColor]);
+  }, [
+    editingTextElement,
+    editingText,
+    editingFontSize,
+    editingFontFamily,
+    editingColor,
+    editingFontWeight,
+    editingTextAlign,
+  ]);
 
   // Handle text style change
   const handleTextStyleChange = useCallback(
@@ -345,16 +361,20 @@ const MemeGeneratorScreen: React.FC = () => {
                   fontSize: editingFontSize,
                   fontFamily: editingFontFamily,
                   color: editingColor,
-                  textAlign: editingTextElement.style.textAlign || 'center',
-                  fontWeight: editingTextElement.style.fontWeight || 'normal',
+                  textAlign: editingTextAlign,
+                  fontWeight: editingFontWeight,
                 }}
                 onStyleChange={styleChanges => {
-                  // Update local state for fontSize, fontFamily, and color
+                  // Update local state for all style properties
                   if (styleChanges.fontSize !== undefined)
                     setEditingFontSize(styleChanges.fontSize);
                   if (styleChanges.fontFamily !== undefined)
                     setEditingFontFamily(styleChanges.fontFamily);
                   if (styleChanges.color !== undefined) setEditingColor(styleChanges.color);
+                  if (styleChanges.fontWeight !== undefined)
+                    setEditingFontWeight(styleChanges.fontWeight);
+                  if (styleChanges.textAlign !== undefined)
+                    setEditingTextAlign(styleChanges.textAlign);
 
                   // Immediately apply style changes to the canvas
                   handleTextStyleChange(styleChanges);

@@ -277,10 +277,9 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   };
 
   const getTextStyle = () => {
-    return {
+    const baseStyle: any = {
       ...styles.textDisplay,
       fontSize: element.style.fontSize,
-      fontFamily: element.style.fontFamily,
       color: element.style.color,
       fontWeight: element.style.fontWeight,
       textAlign: element.style.textAlign,
@@ -288,6 +287,13 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       borderColor: element.style.borderColor,
       borderWidth: element.style.borderWidth,
     };
+
+    // Only add fontFamily if it's defined and not 'System'
+    if (element.style.fontFamily && element.style.fontFamily !== 'System') {
+      baseStyle.fontFamily = element.style.fontFamily;
+    }
+
+    return baseStyle;
   };
 
   return (

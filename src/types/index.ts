@@ -25,7 +25,7 @@ export interface MemeTemplate {
 
 export interface TextStyle {
   fontSize: number;
-  fontFamily: string;
+  fontFamily?: string;
   color: string;
   fontWeight:
     | 'normal'
