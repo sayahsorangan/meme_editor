@@ -20,12 +20,14 @@ import {
   ImagePickerResponse,
   MediaType,
 } from 'react-native-image-picker';
-import { MemeTemplate, TextElement } from '../types';
+import { MemeTemplate, TextElement, ImageElement } from '../types';
 import { MEME_TEMPLATES } from '../constants/templates';
 import { COLORS } from '../constants/colors';
 import MemeCanvas, { MemeCanvasRef } from '../components/MemeCanvas';
 import TemplateSelector from '../components/TemplateSelector';
 import Dropdown, { DropdownItem } from '../components/Dropdown';
+import TextStylePanel from '../components/TextStylePanel';
+import ImageStylePanel from '../components/ImageStylePanel';
 
 const MemeGeneratorScreen: React.FC = () => {
   // Start with the blank document template selected by default
@@ -34,7 +36,9 @@ const MemeGeneratorScreen: React.FC = () => {
   );
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showTextStyleModal, setShowTextStyleModal] = useState(false);
+  const [showImageStyleModal, setShowImageStyleModal] = useState(false);
   const [editingTextElement, setEditingTextElement] = useState<TextElement | null>(null);
+  const [editingImageElement, setEditingImageElement] = useState<ImageElement | null>(null);
 
   // Local state for text style editing
   const [editingText, setEditingText] = useState('');
@@ -256,6 +260,12 @@ const MemeGeneratorScreen: React.FC = () => {
     setShowTextStyleModal(true);
   }, []);
 
+  // Handle image element settings
+  const handleImageElementSettings = useCallback((element: ImageElement) => {
+    setEditingImageElement(element);
+    setShowImageStyleModal(true);
+  }, []);
+
   // Handle text style save
   const handleTextStyleSave = useCallback(() => {
     if (editingTextElement && memeCanvasRef.current) {
@@ -281,6 +291,32 @@ const MemeGeneratorScreen: React.FC = () => {
     setEditingTextElement(null);
   }, []);
 
+  // Handle image style change
+  const handleImageStyleChange = useCallback(
+    (styleChanges: Partial<ImageElement['style']>) => {
+      if (editingImageElement && memeCanvasRef.current) {
+        const updatedElement: Partial<ImageElement> = {
+          style: {
+            ...editingImageElement.style,
+            ...styleChanges,
+          },
+        };
+
+        memeCanvasRef.current.updateImageElement(editingImageElement.id, updatedElement);
+        setEditingImageElement(prev =>
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
+        );
+      }
+    },
+    [editingImageElement]
+  );
+
+  // Handle image style modal close
+  const handleImageStyleModalClose = useCallback(() => {
+    setShowImageStyleModal(false);
+    setEditingImageElement(null);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.GRAY_800} />
@@ -300,6 +336,7 @@ const MemeGeneratorScreen: React.FC = () => {
         onAddText={handleAddText}
         onAddImage={handleAddImage}
         onTextElementSettings={handleTextElementSettings}
+        onImageElementSettings={handleImageElementSettings}
       />
 
       {/* Text Style Modal */}
@@ -405,6 +442,26 @@ const MemeGeneratorScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
               </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Image Style Modal */}
+      <Modal
+        visible={showImageStyleModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleImageStyleModalClose}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {editingImageElement && (
+              <ImageStylePanel
+                imageStyle={editingImageElement.style}
+                onStyleChange={handleImageStyleChange}
+                onClose={handleImageStyleModalClose}
+                isVisible={true}
+              />
             )}
           </View>
         </View>

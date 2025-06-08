@@ -22,6 +22,7 @@ export interface DraggableImageProps {
   onDuplicate: (id: string) => void;
   onRotate?: (id: string, rotation: number) => void;
   onSizeChange?: (id: string, size: Size) => void;
+  onSettings?: (element: ImageElement) => void;
 }
 
 const DraggableImage: React.FC<DraggableImageProps> = ({
@@ -34,6 +35,7 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
   onDuplicate,
   onRotate,
   onSizeChange,
+  onSettings,
 }) => {
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isRotating, setIsRotating] = useState(false);
@@ -265,6 +267,12 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
     }
   };
 
+  const handleSettings = () => {
+    if (onSettings) {
+      onSettings(element);
+    }
+  };
+
   const getImageStyle = () => {
     return {
       ...styles.image,
@@ -329,6 +337,16 @@ const DraggableImage: React.FC<DraggableImageProps> = ({
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Text style={styles.resizeIcon}>⤡</Text>
             </View>
+          )}
+
+          {/* Settings button */}
+          {onSettings && (
+            <TouchableOpacity
+              style={styles.settingsButton}
+              onPress={handleSettings}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Text style={styles.settingsIcon}>⚙</Text>
+            </TouchableOpacity>
           )}
         </>
       )}

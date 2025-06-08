@@ -28,16 +28,21 @@ export interface MemeCanvasProps {
   onAddText: () => void;
   onAddImage: () => void;
   onTextElementSettings?: (element: TextElement) => void;
+  onImageElementSettings?: (element: ImageElement) => void;
 }
 
 export interface MemeCanvasRef {
   addTextElement: () => void;
   addImageElement: (imageUri?: string) => void;
   updateTextElement: (elementId: string, updates: Partial<TextElement>) => void;
+  updateImageElement: (elementId: string, updates: Partial<ImageElement>) => void;
 }
 
 const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
-  ({ selectedTemplate, onAddText, onAddImage, onTextElementSettings }, ref) => {
+  (
+    { selectedTemplate, onAddText, onAddImage, onTextElementSettings, onImageElementSettings },
+    ref
+  ) => {
     // Initialize canvas with square dimensions when no template is selected
     const getInitialCanvasSize = () => {
       const screenWidth = Dimensions.get('window').width - DIMENSIONS.SPACING_LG * 2;
@@ -505,6 +510,16 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       [canvasState.elements, onTextElementSettings]
     );
 
+    // Handle image element settings
+    const handleImageSettings = useCallback(
+      (element: ImageElement) => {
+        if (onImageElementSettings) {
+          onImageElementSettings(element);
+        }
+      },
+      [onImageElementSettings]
+    );
+
     // Handle text element height resize
     const handleTextResizeHeight = useCallback((elementId: string, newHeight: number) => {
       setCanvasState(prev => ({
@@ -544,6 +559,21 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
       []
     );
 
+    // Handle image element update
+    const handleUpdateImageElement = useCallback(
+      (elementId: string, updates: Partial<ImageElement>) => {
+        setCanvasState(prev => ({
+          ...prev,
+          elements: prev.elements.map(element =>
+            element.id === elementId && element.type === 'image'
+              ? { ...element, ...updates }
+              : element
+          ),
+        }));
+      },
+      []
+    );
+
     // Expose methods to parent component
     useImperativeHandle(
       ref,
@@ -551,8 +581,9 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
         addTextElement: handleAddText,
         addImageElement: handleAddImage,
         updateTextElement: handleUpdateTextElement,
+        updateImageElement: handleUpdateImageElement,
       }),
-      [handleAddText, handleAddImage, handleUpdateTextElement]
+      [handleAddText, handleAddImage, handleUpdateTextElement, handleUpdateImageElement]
     );
 
     // Render snap lines
@@ -603,7 +634,7 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
 
               // Calculate canvas size to match image aspect ratio
               const aspectRatio = width / height;
-              let canvasWidth, canvasHeight;
+              let canvasWidth: number, canvasHeight: number;
 
               if (aspectRatio > 1) {
                 // Landscape image - fit to width
@@ -668,6 +699,7 @@ const MemeCanvas = forwardRef<MemeCanvasRef, MemeCanvasProps>(
                     onDuplicate={handleElementDuplicate}
                     onRotate={handleElementRotate}
                     onSizeChange={handleElementSizeChange}
+                    onSettings={handleImageSettings}
                   />
                 );
               }
