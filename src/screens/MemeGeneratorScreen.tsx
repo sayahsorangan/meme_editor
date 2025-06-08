@@ -31,7 +31,7 @@ import ImageStylePanel from '../components/ImageStylePanel';
 const MemeGeneratorScreen: React.FC = () => {
   // Start with the blank document template selected by default
   const [selectedTemplate, setSelectedTemplate] = useState<MemeTemplate | null>(
-    MEME_TEMPLATES.find(template => template.id === 'blank_document') || null,
+    MEME_TEMPLATES.find(template => template.id === 'blank_document') || null
   );
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showTextStyleModal, setShowTextStyleModal] = useState(false);
@@ -86,7 +86,7 @@ const MemeGeneratorScreen: React.FC = () => {
       maxWidth: 2000,
       quality: DIMENSIONS.CANVAS_MEDIUM_SCALE,
     }),
-    [],
+    []
   );
 
   // Request camera permission for Android
@@ -143,7 +143,7 @@ const MemeGeneratorScreen: React.FC = () => {
         'Permission Required',
         'Storage permission is required to access your photos. ' +
           'Please enable it in your device settings.',
-        [{ text: 'OK' }],
+        [{ text: 'OK' }]
       );
       return;
     }
@@ -173,7 +173,7 @@ const MemeGeneratorScreen: React.FC = () => {
       Alert.alert(
         'Permission Required',
         'Camera permission is required to take photos. Please enable it in your device settings.',
-        [{ text: 'OK' }],
+        [{ text: 'OK' }]
       );
       return;
     }
@@ -217,7 +217,7 @@ const MemeGeneratorScreen: React.FC = () => {
           break;
       }
     },
-    [handleSelectImageFromGallery, handleSelectImageFromCamera],
+    [handleSelectImageFromGallery, handleSelectImageFromCamera]
   );
 
   // Handle add text element
@@ -293,7 +293,7 @@ const MemeGeneratorScreen: React.FC = () => {
         setEditingTextElement(prev => (prev ? { ...prev, text: newText } : null));
       }
     },
-    [editingTextElement],
+    [editingTextElement]
   );
 
   // Handle text style change
@@ -309,11 +309,11 @@ const MemeGeneratorScreen: React.FC = () => {
 
         memeCanvasRef.current.updateTextElement(editingTextElement.id, updatedElement);
         setEditingTextElement(prev =>
-          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null,
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
         );
       }
     },
-    [editingTextElement],
+    [editingTextElement]
   );
 
   // Handle text style modal close
@@ -335,11 +335,11 @@ const MemeGeneratorScreen: React.FC = () => {
 
         memeCanvasRef.current.updateImageElement(editingImageElement.id, updatedElement);
         setEditingImageElement(prev =>
-          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null,
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
         );
       }
     },
-    [editingImageElement],
+    [editingImageElement]
   );
 
   // Handle image style modal close

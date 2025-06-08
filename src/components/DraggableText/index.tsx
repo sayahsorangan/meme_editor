@@ -64,7 +64,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     centerX: number,
     centerY: number,
     touchX: number,
-    touchY: number,
+    touchY: number
   ): number => {
     const deltaX = touchX - centerX;
     const deltaY = touchY - centerY;
@@ -95,7 +95,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
               centerX,
               centerY,
               evt.nativeEvent.pageX,
-              evt.nativeEvent.pageY,
+              evt.nativeEvent.pageY
             );
 
             // Store the difference between current rotation and touch angle
@@ -117,7 +117,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
           centerX,
           centerY,
           evt.nativeEvent.pageX,
-          evt.nativeEvent.pageY,
+          evt.nativeEvent.pageY
         );
 
         // Calculate new rotation by adding the initial angle offset
@@ -136,7 +136,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    }),
+    })
   ).current;
 
   // Height resize PanResponder
@@ -155,7 +155,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         // Calculate new height based on vertical movement
         const newHeight = Math.max(
           DIMENSIONS.SPACING_30,
-          initialSize.current.height + gestureState.dy,
+          initialSize.current.height + gestureState.dy
         );
         onResizeHeight(element.id, newHeight);
       },
@@ -166,7 +166,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    }),
+    })
   ).current;
 
   // Width resize PanResponder
@@ -185,7 +185,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         // Calculate new width based on horizontal movement
         const newWidth = Math.max(
           DIMENSIONS.SPACING_50,
-          initialSize.current.width + gestureState.dx,
+          initialSize.current.width + gestureState.dx
         );
         onResizeWidth(element.id, newWidth);
       },
@@ -196,7 +196,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    }),
+    })
   ).current;
 
   const panResponder = useRef(
@@ -259,7 +259,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       // High priority to capture gestures over parent canvas
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
-    }),
+    })
   ).current;
 
   // Update local text when element text changes externally
