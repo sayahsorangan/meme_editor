@@ -23,6 +23,7 @@ import { DIMENSIONS } from '../constants/dimensions';
 import { COLORS } from '../constants/colors';
 import { baseStylePanelStyles } from '../styles/baseStylePanel';
 import MemeCanvas, { MemeCanvasRef } from '../components/MemeCanvas';
+import MemeCanvasWithGestureHandler from '../components/MemeCanvas/MemeCanvasWithGestureHandler';
 import TemplateSelector from '../components/TemplateSelector';
 import Dropdown, { DropdownItem } from '../components/Dropdown';
 import TextStylePanel from '../components/TextStylePanel';
@@ -374,7 +375,7 @@ const MemeGeneratorScreen: React.FC = () => {
       </View>
 
       {/* Main Canvas */}
-      <MemeCanvas
+      <MemeCanvasWithGestureHandler
         ref={memeCanvasRef}
         selectedTemplate={selectedTemplate}
         onAddText={handleAddText}

@@ -6,7 +6,25 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import { View, Image, Dimensions, PanResponder } from 'react-native';
+import { View, Image, Dimensions } from 'react-native';
+import {
+  PinchGestureHandler,
+  PanGestureHandler,
+  TapGestureHandler,
+  State,
+  HandlerStateChangeEvent,
+  PinchGestureHandlerEventPayload,
+  PanGestureHandlerEventPayload,
+  TapGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedGestureHandler,
+  runOnJS,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   MemeTemplate,
   TextElement,

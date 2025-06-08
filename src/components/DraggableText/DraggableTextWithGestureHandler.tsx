@@ -292,7 +292,6 @@ const DraggableText: React.FC<DraggableTextProps> = ({
       ref={containerRef}
       {...panResponder.panHandlers}
       style={[
-        styles.container,
         {
           left: element.position.x,
           top: element.position.y,
