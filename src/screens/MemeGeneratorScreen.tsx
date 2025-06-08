@@ -10,10 +10,7 @@ import {
   Platform,
   PermissionsAndroid,
   Modal,
-  TextInput,
-  ScrollView,
 } from 'react-native';
-import Slider from '@react-native-community/slider';
 import {
   launchImageLibrary,
   launchCamera,
@@ -23,6 +20,7 @@ import {
 import { MemeTemplate, TextElement, ImageElement } from '../types';
 import { MEME_TEMPLATES } from '../constants/templates';
 import { COLORS } from '../constants/colors';
+import { baseStylePanelStyles } from '../styles/baseStylePanel';
 import MemeCanvas, { MemeCanvasRef } from '../components/MemeCanvas';
 import TemplateSelector from '../components/TemplateSelector';
 import Dropdown, { DropdownItem } from '../components/Dropdown';
@@ -47,40 +45,6 @@ const MemeGeneratorScreen: React.FC = () => {
   const [editingColor, setEditingColor] = useState('#000000');
 
   const memeCanvasRef = useRef<MemeCanvasRef>(null);
-
-  // Font families available in React Native
-  const fontFamilies = [
-    'System',
-    'Arial',
-    'Helvetica',
-    'Times New Roman',
-    'Courier New',
-    'Georgia',
-    'Verdana',
-    'Trebuchet MS',
-    'Comic Sans MS',
-    'Impact',
-  ];
-
-  // Template colors for quick selection
-  const templateColors = [
-    '#000000', // Black
-    '#FFFFFF', // White
-    '#FF0000', // Red
-    '#00FF00', // Green
-    '#0000FF', // Blue
-    '#FFFF00', // Yellow
-    '#FF00FF', // Magenta
-    '#00FFFF', // Cyan
-    '#FFA500', // Orange
-    '#800080', // Purple
-    '#FFC0CB', // Pink
-    '#808080', // Gray
-    '#A52A2A', // Brown
-    '#FFD700', // Gold
-    '#DC143C', // Crimson
-    '#32CD32', // Lime Green
-  ];
 
   // Dropdown items for add menu
   const dropdownItems: DropdownItem[] = [
@@ -285,6 +249,26 @@ const MemeGeneratorScreen: React.FC = () => {
     }
   }, [editingTextElement, editingText, editingFontSize, editingFontFamily, editingColor]);
 
+  // Handle text style change
+  const handleTextStyleChange = useCallback(
+    (styleChanges: Partial<TextElement['style']>) => {
+      if (editingTextElement && memeCanvasRef.current) {
+        const updatedElement: Partial<TextElement> = {
+          style: {
+            ...editingTextElement.style,
+            ...styleChanges,
+          },
+        };
+
+        memeCanvasRef.current.updateTextElement(editingTextElement.id, updatedElement);
+        setEditingTextElement(prev =>
+          prev ? { ...prev, style: { ...prev.style, ...styleChanges } } : null
+        );
+      }
+    },
+    [editingTextElement]
+  );
+
   // Handle text style modal close
   const handleTextStyleModalClose = useCallback(() => {
     setShowTextStyleModal(false);
@@ -317,6 +301,14 @@ const MemeGeneratorScreen: React.FC = () => {
     setEditingImageElement(null);
   }, []);
 
+  // Handle image style save
+  const handleImageStyleSave = useCallback(() => {
+    // Changes are already applied in real-time via handleImageStyleChange
+    // Just close the modal
+    setShowImageStyleModal(false);
+    setEditingImageElement(null);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.GRAY_800} />
@@ -345,103 +337,32 @@ const MemeGeneratorScreen: React.FC = () => {
         animationType="slide"
         transparent={true}
         onRequestClose={handleTextStyleModalClose}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Text Style</Text>
-              <TouchableOpacity onPress={handleTextStyleModalClose} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
-
+        <View style={baseStylePanelStyles.modalOverlay}>
+          <View style={baseStylePanelStyles.modalContainer}>
             {editingTextElement && (
-              <ScrollView style={styles.modalContent}>
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Text</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={editingText}
-                    onChangeText={setEditingText}
-                    placeholder="Enter text"
-                    multiline
-                  />
-                </View>
+              <TextStylePanel
+                textStyle={{
+                  fontSize: editingFontSize,
+                  fontFamily: editingFontFamily,
+                  color: editingColor,
+                  textAlign: editingTextElement.style.textAlign || 'center',
+                  fontWeight: editingTextElement.style.fontWeight || 'normal',
+                }}
+                onStyleChange={styleChanges => {
+                  // Update local state for fontSize, fontFamily, and color
+                  if (styleChanges.fontSize !== undefined)
+                    setEditingFontSize(styleChanges.fontSize);
+                  if (styleChanges.fontFamily !== undefined)
+                    setEditingFontFamily(styleChanges.fontFamily);
+                  if (styleChanges.color !== undefined) setEditingColor(styleChanges.color);
 
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Font Size: {editingFontSize}</Text>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={12}
-                    maximumValue={72}
-                    value={editingFontSize}
-                    onValueChange={setEditingFontSize}
-                    step={1}
-                    minimumTrackTintColor={COLORS.PRIMARY}
-                    maximumTrackTintColor={COLORS.GRAY_300}
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Font Family</Text>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.fontFamilyScroll}>
-                    {fontFamilies.map(font => (
-                      <TouchableOpacity
-                        key={font}
-                        style={[
-                          styles.fontOption,
-                          editingFontFamily === font && styles.fontOptionSelected,
-                        ]}
-                        onPress={() => setEditingFontFamily(font)}>
-                        <Text
-                          style={[
-                            styles.fontOptionText,
-                            { fontFamily: font === 'System' ? undefined : font },
-                            editingFontFamily === font && styles.fontOptionTextSelected,
-                          ]}>
-                          {font}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={styles.label}>Color</Text>
-                  <View style={styles.colorRow}>
-                    <TextInput
-                      style={styles.colorInput}
-                      value={editingColor}
-                      onChangeText={setEditingColor}
-                      placeholder="#000000"
-                    />
-                    <View style={[styles.colorPreview, { backgroundColor: editingColor }]} />
-                  </View>
-
-                  <View style={styles.templateColorsContainer}>
-                    {templateColors.map(color => (
-                      <TouchableOpacity
-                        key={color}
-                        style={[
-                          styles.templateColorOption,
-                          { backgroundColor: color },
-                          color === '#FFFFFF' && styles.whiteColorBorder,
-                          editingColor === color && styles.selectedColorOption,
-                        ]}
-                        onPress={() => setEditingColor(color)}
-                      />
-                    ))}
-                  </View>
-                </View>
-
-                <View style={styles.buttonRow}>
-                  <TouchableOpacity style={styles.saveButton} onPress={handleTextStyleSave}>
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  </TouchableOpacity>
-                </View>
-              </ScrollView>
+                  // Immediately apply style changes to the canvas
+                  handleTextStyleChange(styleChanges);
+                }}
+                onClose={handleTextStyleModalClose}
+                onSave={handleTextStyleSave}
+                isVisible={true}
+              />
             )}
           </View>
         </View>
@@ -453,13 +374,14 @@ const MemeGeneratorScreen: React.FC = () => {
         animationType="slide"
         transparent={true}
         onRequestClose={handleImageStyleModalClose}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+        <View style={baseStylePanelStyles.modalOverlay}>
+          <View style={baseStylePanelStyles.modalContainer}>
             {editingImageElement && (
               <ImageStylePanel
                 imageStyle={editingImageElement.style}
                 onStyleChange={handleImageStyleChange}
                 onClose={handleImageStyleModalClose}
+                onSave={handleImageStyleSave}
                 isVisible={true}
               />
             )}
@@ -536,159 +458,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: COLORS.WHITE,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    width: '90%',
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY_200,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.GRAY_800,
-  },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: COLORS.GRAY_200,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.GRAY_600,
-  },
-  modalContent: {
-    padding: 20,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.GRAY_800,
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: COLORS.GRAY_300,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: COLORS.GRAY_800,
-    backgroundColor: COLORS.WHITE,
-    minHeight: 40,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  fontFamilyScroll: {
-    flexDirection: 'row',
-  },
-  fontOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY_300,
-    backgroundColor: COLORS.WHITE,
-  },
-  fontOptionSelected: {
-    backgroundColor: COLORS.PRIMARY,
-    borderColor: COLORS.PRIMARY,
-  },
-  fontOptionText: {
-    fontSize: 14,
-    color: COLORS.GRAY_800,
-  },
-  fontOptionTextSelected: {
-    color: COLORS.WHITE,
-  },
-  colorRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  colorInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY_300,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: COLORS.GRAY_800,
-    backgroundColor: COLORS.WHITE,
-  },
-  colorPreview: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY_300,
-  },
-  templateColorsLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.GRAY_600,
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  templateColorsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 16,
-  },
-  templateColorOption: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  whiteColorBorder: {
-    borderColor: COLORS.GRAY_300,
-  },
-  selectedColorOption: {
-    borderColor: COLORS.PRIMARY,
-    borderWidth: 3,
-  },
-  buttonRow: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  saveButton: {
-    backgroundColor: COLORS.PRIMARY,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: COLORS.WHITE,
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 
